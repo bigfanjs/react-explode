@@ -1,0 +1,30 @@
+{
+  "name": "react-explode",
+  "version": "1.0.0",
+  "description": "explosion motion components built with react and gsap",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "explosion",
+    "fireworks",
+    "splash",
+    "motion"
+  ],
+  "author": "Adel Jojo <bigfanjs@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "gsap": "^1.20.4",
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.2.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^4.19.1"
+  }
+}
