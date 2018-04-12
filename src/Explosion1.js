@@ -18,7 +18,7 @@ class Explosion extends Component {
         const radius = this.size * this.radius / 100;
         const durations = this.durations;
         const timeleft = durations[1] - durations[0];
-        const { delay = 0, repeat = 0, repeatDelay = 0, onComplete, onStart } = this.props;
+        const { delay = 0, repeat = 0, repeatDelay = 0, onComplete, onStart, onRepeat } = this.props;
 
         for (let i = 0; i < this.count; i++) {
             const x = this.center + radius * Math.cos(i * angle);
@@ -42,7 +42,8 @@ class Explosion extends Component {
                     attr: end,
                     repeatDelay,
                     onComplete: onComplete && i >= this.count - 1 && onComplete,
-                    onStart: onStart && i >= this.count - 1 && onStart
+                    onStart: onStart && i >= this.count - 1 && onStart,
+                    onRepeat: onRepeat && i >= this.count - 1 && onRepeat
                 }
             );
         }
