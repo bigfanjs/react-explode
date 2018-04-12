@@ -36,7 +36,7 @@ class Explosion extends Component {
         const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
         return (
-            <svg style={{ border: "1px solid" }} width={size} height={size} version="1.1">
+            <svg width={size} height={size} version="1.1">
                 <Fragment>
                     {[...Array(this.count)].map((_, i) => {
                         return (
@@ -53,7 +53,6 @@ class Explosion extends Component {
                         )
                     })}
                 </Fragment>
-                <circle cx={center} cy={center} r="2" />
             </svg>
         );
     }
