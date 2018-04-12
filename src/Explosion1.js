@@ -2,50 +2,58 @@ import React, { Component, Fragment } from "react";
 import { TweenLite, Power4 } from "gsap";
 
 class Explosion extends Component {
-    targets = [];
+    size = this.props.size;
+    center = this.size / 2;
+
+    lines = [];
+    count = 16;
+    radius = 47.5;
+    strokeWidth = 0.5;
 
     componentDidMount() {
-        const { delay, duration, count, radius } = this.props;
-        const angle = Math.PI / (count / 2);
         const ease = Power4.easeOut;
-        const origin = radius;
+        const radius = this.size * this.radius / 100;
 
-        for (let i = 0; i < count; i++) {
-            const x = origin + radius * Math.cos(i * angle);
-            const y = origin + radius * Math.sin(i * angle);
+        for (let i = 0; i < this.count; i++) {
+            const angle = Math.PI / 8;
 
-            const target = this.targets[i];
+            const x = this.center + radius * Math.cos(i * angle);
+            const y = this.center + radius * Math.sin(i * angle);
+
+            const target = this.lines[i];
 
             const start = { x2: x, y2: y };
             const end = { x1: x, y1: y };
 
-            TweenLite.to(target, duration, { attr: start, delay, ease });
-            TweenLite.to(target, duration * 1.9, { attr: end, delay, ease });
+            TweenLite.to(target, 0.6, { attr: start, ease });
+            TweenLite.to(target, 1, { attr: end, ease });
         }
     }
 
     render() {
-        const { radius, style, count, className="" } = this.props;
-        const size = radius * 2;
+        const { size, style } = this.props;
+        const center = this.center;
+        const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
         return (
-            <svg className={className} style={style} width={size} height={size}>
+            <svg style={{ border: "1px solid" }} width={size} height={size} version="1.1">
                 <Fragment>
-                    {[...Array(count)].map((_, i) => {
+                    {[...Array(this.count)].map((_, i) => {
                         return (
                             <line
-                                x1={radius}
-                                y1={radius}
-                                x2={radius}
-                                y2={radius}
-                                ref={(el) => this.targets[i] = el}
+                                x1={center}
+                                y1={center}
+                                x2={center}
+                                y2={center}
+                                ref={(el) => this.lines[i] = el}
                                 key={i}
-                                strokeWidth="2"
+                                strokeWidth={strokeWidth}
                                 stroke="white"
                             />
                         )
                     })}
                 </Fragment>
+                <circle cx={center} cy={center} r="2" />
             </svg>
         );
     }
