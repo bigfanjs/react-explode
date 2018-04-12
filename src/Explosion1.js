@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TweenLite, Power4 } from "gsap";
+import { TweenMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     size = this.props.size;
@@ -10,9 +10,14 @@ class Explosion extends Component {
     radius = 47.5;
     strokeWidth = 0.5;
 
+    durations = [0.6, 1];
+
     componentDidMount() {
         const ease = Power4.easeOut;
         const radius = this.size * this.radius / 100;
+        const durations = this.durations;
+        const timeleft = durations[1] - durations[0];
+        const { delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
 
         for (let i = 0; i < this.count; i++) {
             const angle = Math.PI / 8;
@@ -25,13 +30,13 @@ class Explosion extends Component {
             const start = { x2: x, y2: y };
             const end = { x1: x, y1: y };
 
-            TweenLite.to(target, 0.6, { attr: start, ease });
-            TweenLite.to(target, 1, { attr: end, ease });
+            TweenMax.to(target, durations[0], { attr: start, ease, repeat, delay, repeatDelay: repeatDelay + timeleft });
+            TweenMax.to(target, durations[1], { attr: end, ease, repeat, delay, repeatDelay });
         }
     }
 
     render() {
-        const { size, style } = this.props;
+        const { size, style, color = "white" } = this.props;
         const center = this.center;
         const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
@@ -48,7 +53,7 @@ class Explosion extends Component {
                                 ref={(el) => this.lines[i] = el}
                                 key={i}
                                 strokeWidth={strokeWidth}
-                                stroke="white"
+                                stroke={color}
                             />
                         )
                     })}
