@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TweenLite, Power4 } from "gsap";
+import { TweenMax, TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     size = this.props.size;
@@ -9,12 +9,17 @@ class Explosion extends Component {
     strokeWidth = 1;
 
     componentDidMount() {
-        const { delay = 0 } = this.props;
+        const { repeat = 0, repeatDelay = 0, delay = 0 } = this.props;
         const ease = Power4.easeOut;
         const radius = this.size * this.radius / 100;
+        const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
-        TweenLite.to(this.circle, 1, { attr: { r: radius }, ease });
-        TweenLite.to(this.circle, 0.8, { attr: { "stroke-width": 0 }, delay: 0.5, ease });
+        const timeline = new TimelineMax({ repeat, repeatDelay });
+
+        timeline
+            .to(this.circle, 1, { attr: { r: radius }, ease })
+            .to(this.circle, 0.8, { attr: { "stroke-width": 0 }, ease }, "-=0.5")
+            .set(this.circle, { attr: { "stroke-width": strokeWidth } }, "-=1");
     }
 
     render() {
