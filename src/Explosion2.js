@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TweenMax, TimelineMax, Power4 } from "gsap";
+import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     size = this.props.size;
