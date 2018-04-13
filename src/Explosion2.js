@@ -9,12 +9,18 @@ class Explosion extends Component {
     strokeWidth = 1;
 
     componentDidMount() {
-        const { repeat = 0, repeatDelay = 0, delay = 0 } = this.props;
+        const { repeat = 0, repeatDelay = 0, delay = 0, onStart, onRepeat, onComplete } = this.props;
         const ease = Power4.easeOut;
         const radius = this.size * this.radius / 100;
         const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
-        const timeline = new TimelineMax({ repeat, repeatDelay });
+        const timeline = new TimelineMax({
+            repeat,
+            repeatDelay,
+            onStart: onStart,
+            onComplete: onComplete,
+            onRepeat: onRepeat
+        });
 
         timeline
             .to(this.circle, 1, { attr: { r: radius }, ease })
