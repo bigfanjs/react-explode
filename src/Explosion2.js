@@ -31,7 +31,7 @@ class Explosion extends Component {
     render() {
         const size = this.size;
         const center = this.center;
-        const { style } = this.props;
+        const { style, color = "white" } = this.props;
         const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
 
         return (
@@ -41,7 +41,7 @@ class Explosion extends Component {
                     cy={center}
                     r={0}
                     strokeWidth={strokeWidth}
-                    stroke="white"
+                    stroke={color}
                     fill="none"
                     ref={(el) => this.circle = el}
                 />
