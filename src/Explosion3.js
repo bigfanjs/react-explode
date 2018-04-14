@@ -12,15 +12,29 @@ class Explosion extends Component {
     count = 16;
 
     componentDidMount() {
-        const { delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
+        const { delay = 0, repeat = 0, repeatDelay = 0, onStart, onComplete, onRepeat } = this.props;
         const angle = Math.PI / (this.count / 2);
         const ease = Power4.easeOut;
         const radiuses = this.radiuses.map((radius) => this.size * radius / 100);
-        const timeline = new TimelineMax({ repeat, repeatDelay, delay: delay + 0.35 });
+        const timeline = new TimelineMax({
+            repeat, repeatDelay,
+            delay: delay + 0.35,
+            onComplete: onComplete && onComplete.bind(null, 2),
+            onStart: onStart && onStart.bind(null, 2),
+            onRepeat: onRepeat && onRepeat.bind(null, 2)
+        });
 
         for (let i = 0; i < 2; i++) {
             for (let j = 0; j < this.count; j++) {
-                const timeline = new TimelineMax({ repeat, repeatDelay, delay: delay + i * 0.5 });
+                const isLast = j >= this.count - 1;
+
+                const timeline = new TimelineMax({
+                    repeat, repeatDelay,
+                    delay: delay + i * 0.5,
+                    onComplete: onComplete && isLast && onComplete.bind(null, i),
+                    onStart: onStart && isLast && onStart.bind(null, i),
+                    onRepeat: onRepeat && isLast && onRepeat.bind(null, i)
+                });
 
                 const x = this.center + radiuses[0] * Math.cos(j * angle);
                 const y = this.center + radiuses[0] * Math.sin(j * angle);
