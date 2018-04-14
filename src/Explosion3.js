@@ -9,6 +9,9 @@ class Explosion extends Component {
 
     radiuses = [47.4, 24];
 
+    circleStrokeWidth = 2;
+    lineStrokeWidth = 1;
+
     count = 16;
 
     componentDidMount() {
@@ -57,6 +60,9 @@ class Explosion extends Component {
         const size = this.size;
         const center = this.center;
 
+        const circleStrokeWidth = Math.ceil(this.size * this.circleStrokeWidth / 100);
+        const lineStrokeWidth = Math.ceil(this.size * this.lineStrokeWidth / 100);
+
         return (
             <svg width={size} height={size}>
                 <Fragment>
@@ -73,7 +79,7 @@ class Explosion extends Component {
                                         y2={center}
                                         ref={(el) => this.targets[i][j] = el}
                                         key={j}
-                                        strokeWidth="2"
+                                        strokeWidth={lineStrokeWidth}
                                         stroke="white" />
                                 )}
                             </Fragment>
@@ -84,7 +90,7 @@ class Explosion extends Component {
                     cx={center}
                     cy={center}
                     r={0}
-                    strokeWidth="4"
+                    strokeWidth={circleStrokeWidth}
                     stroke="white"
                     fill="none"
                     ref={(el) => this.circle = el}
