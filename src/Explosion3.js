@@ -59,12 +59,13 @@ class Explosion extends Component {
     render() {
         const size = this.size;
         const center = this.center;
+        const { style, color = "white" } = this.props;
 
         const circleStrokeWidth = Math.ceil(this.size * this.circleStrokeWidth / 100);
         const lineStrokeWidth = Math.ceil(this.size * this.lineStrokeWidth / 100);
 
         return (
-            <svg width={size} height={size}>
+            <svg style={style} width={size} height={size}>
                 <Fragment>
                     {[...Array(2)].map((_, i) => {
                         this.targets[i] = [];
@@ -80,7 +81,7 @@ class Explosion extends Component {
                                         ref={(el) => this.targets[i][j] = el}
                                         key={j}
                                         strokeWidth={lineStrokeWidth}
-                                        stroke="white" />
+                                        stroke={color} />
                                 )}
                             </Fragment>
                         );
@@ -91,7 +92,7 @@ class Explosion extends Component {
                     cy={center}
                     r={0}
                     strokeWidth={circleStrokeWidth}
-                    stroke="white"
+                    stroke={color}
                     fill="none"
                     ref={(el) => this.circle = el}
                 />
