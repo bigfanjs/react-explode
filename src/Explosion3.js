@@ -1,7 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TweenLite, Power4 } from "gsap";
-
-import "./Explosion2.css";
+import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     targets = [[]];
@@ -14,13 +12,16 @@ class Explosion extends Component {
     count = 16;
 
     componentDidMount() {
-        const { delay = 0 } = this.props;
+        const { delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
         const angle = Math.PI / (this.count / 2);
         const ease = Power4.easeOut;
         const radiuses = this.radiuses.map((radius) => this.size * radius / 100);
+        const timeline = new TimelineMax({ repeat, repeatDelay, delay: delay + 0.35 });
 
         for (let i = 0; i < 2; i++) {
             for (let j = 0; j < this.count; j++) {
+                const timeline = new TimelineMax({ repeat, repeatDelay, delay: delay + i * 0.5 });
+
                 const x = this.center + radiuses[0] * Math.cos(j * angle);
                 const y = this.center + radiuses[0] * Math.sin(j * angle);
 
@@ -29,15 +30,13 @@ class Explosion extends Component {
                 const start = { x2: x, y2: y };
                 const end = { x1: x, y1: y };
 
-                const d = delay + (i >= 1 ? 0.5 : 0);
-
-                TweenLite.to(target, 0.8, { attr: start, delay: d, ease });
-                TweenLite.to(target, 1.3, { attr: end, delay: d, ease });
+                timeline.to(target, 1, { attr: start, ease })
+                timeline.to(target, 1, { attr: end, ease }, "-=0.9");
             }
         }
 
-        TweenLite.to(this.circle, 0.5, { attr: { r: radiuses[1] }, delay: 0.3, ease });
-        TweenLite.to(this.circle, 0.5, { attr: { "stroke-width": 0 }, delay: 0.5, ease });
+        timeline.to(this.circle, 1, { attr: { r: radiuses[1] }, ease });
+        timeline.to(this.circle, 1, { attr: { "stroke-width": 0 }, ease }, "-=0.9");
     }
 
     render() {
@@ -45,7 +44,7 @@ class Explosion extends Component {
         const center = this.center;
 
         return (
-            <svg style={{ border: "1px solid" }} width={size} height={size}>
+            <svg width={size} height={size}>
                 <Fragment>
                     {[...Array(2)].map((_, i) => {
                         this.targets[i] = [];
@@ -76,7 +75,6 @@ class Explosion extends Component {
                     fill="none"
                     ref={(el) => this.circle = el}
                 />
-                <circle cx={200} cy={200} r="2" />
             </svg>
         );
     }
