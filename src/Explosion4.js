@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TimelineMax, TweenMax, Power4 } from "gsap";
+import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     size = this.props.size;
@@ -15,7 +15,7 @@ class Explosion extends Component {
     ]
 
     componentDidMount() {
-        const { delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
+        const { delay = 0, repeat = 0, repeatDelay = 0, onStart, onComplete, onRepeat } = this.props;
         const duration = 0.5;
         const ease = Power4.easeOut;
         const radius = this.size * this.radius / 100;
@@ -24,7 +24,14 @@ class Explosion extends Component {
             const angle = Math.PI / (this.counts[i] / 2);
 
             for (let j = 0; j < this.counts[i]; j++) {
-                const tl = new TimelineMax({ delay: delay + (i >= 1 ? 0.9 : 0), repeat, repeatDelay });
+                const isLast = j >= this.counts[i] - 1;
+                const tl = new TimelineMax({
+                    repeat, repeatDelay,
+                    delay: delay + (i >= 1 ? 0.9 : 0),
+                    onComplete: onComplete && isLast && onComplete.bind(null, i),
+                    onStart: onStart && isLast && onStart.bind(null, i),
+                    onRepeat: onRepeat && isLast && onRepeat.bind(null, i)
+                });
                 const x = this.center + radius * Math.cos(j * angle);
                 const y = this.center + radius * Math.sin(j * angle);
 
@@ -42,7 +49,13 @@ class Explosion extends Component {
             const circle = this.circles[i];
             const el = circle.el;
             const radius = this.size * circle.radius / 100;
-            const tl = new TimelineMax({ delay: delay + (i + 1) * 0.2, repeat, repeatDelay });
+            const tl = new TimelineMax({
+                repeat, repeatDelay,
+                delay: delay + (i + 1) * 0.2,
+                onComplete: onComplete && onComplete.bind(null, 2 + i),
+                onStart: onStart && onStart.bind(null, 2 + i),
+                onRepeat: onRepeat && onRepeat.bind(null, 2 + 1)
+            });
 
             tl.to(el, 1, { attr: { r: radius / 2 }, ease });
             tl.to(el, 1, { attr: { "stroke-width": 0 }, ease }, "-=0.9");
@@ -54,7 +67,7 @@ class Explosion extends Component {
         const center = this.center;
 
         return (
-            <svg style={{ border: "1px solid" }} width={size} height={size}>
+            <svg width={size} height={size}>
                 <Fragment>
                     {[...Array(2)].map((_, i) => {
                         this.targets[i] = [];
@@ -96,7 +109,6 @@ class Explosion extends Component {
                         );
                     })}
                 </Fragment>
-                <circle cx={center} cy={center} />
             </svg>
         );
     }
