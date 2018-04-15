@@ -6,8 +6,9 @@ class Explosion extends Component {
     center = this.size / 2;
     targets = [];
     counts = [7, 32];
-    widths = [7, 2];
+    widths = [1.75, 0.5];
     radius = 47.5;
+    circleStroke = 1;
     circles = [
         { el: null, pos: [50, 50], radius: 25 },
         { el: null, pos: [68, 46], radius: 40 },
@@ -51,7 +52,7 @@ class Explosion extends Component {
             const radius = this.size * circle.radius / 100;
             const tl = new TimelineMax({
                 repeat, repeatDelay,
-                delay: delay + (i + 1) * 0.2,
+                delay: delay + (i + 1) * 0.15,
                 onComplete: onComplete && onComplete.bind(null, 2 + i),
                 onStart: onStart && onStart.bind(null, 2 + i),
                 onRepeat: onRepeat && onRepeat.bind(null, 2 + 1)
@@ -65,11 +66,14 @@ class Explosion extends Component {
     render() {
         const size = this.size;
         const center = this.center;
+        const { style, color = "white" } = this.props;
+        const circleStroke = Math.ceil(size * this.circleStroke / 100);
 
         return (
-            <svg width={size} height={size}>
+            <svg style={style} width={size} height={size}>
                 <Fragment>
                     {[...Array(2)].map((_, i) => {
+                        const width = Math.ceil(this.size * this.widths[i] / 100);
                         this.targets[i] = [];
 
                         return (
@@ -82,8 +86,9 @@ class Explosion extends Component {
                                         y2={center}
                                         ref={(el) => this.targets[i][j] = el}
                                         key={j}
-                                        strokeWidth={this.widths[i]}
-                                        stroke="white" />
+                                        strokeWidth={width}
+                                        stroke={color}
+                                    />
                                 )}
                             </Fragment>
                         );
@@ -101,9 +106,9 @@ class Explosion extends Component {
                                 cx={x}
                                 cy={y}
                                 r={0}
-                                strokeWidth="4"
+                                strokeWidth={circleStroke}
                                 fill="none"
-                                stroke="white"
+                                stroke={color}
                                 ref={(el) => this.circles[i].el = el}
                             />
                         );
