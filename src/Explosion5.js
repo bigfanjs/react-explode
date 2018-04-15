@@ -24,7 +24,7 @@ class Explosion extends Component {
 
     componentDidMount() {
         const ease = Power4.easeOut;
-        const { size, delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
+        const { size, delay = 0, repeat = 0, repeatDelay = 0, onStart, onComplete, onRepeat } = this.props;
         const center = size / 2;
         const halfs = this.halfs;
         const front = center - halfs[0];
@@ -42,8 +42,13 @@ class Explosion extends Component {
             const square = this.squares[i];
             const size = this.sizes[i];
             const { x, y } = positions[i];
-            const delay = delays[i];
-            const tl = new TimelineMax({ delay, repeat, repeatDelay });
+            const delay2 = delays[i];
+            const tl = new TimelineMax({
+                delay: delay + delay2, repeat, repeatDelay,
+                onStart: i === 0 && onStart,
+                onComplete: i === 0 && onComplete,
+                onRepeat: i === 0 && onRepeat
+            });
 
             tl.to(square, 1, { attr: { x, y, width: size, height: size }, ease });
             tl.to(square, 1, { attr: { "stroke-width": 0 }, ease }, "-=0.9");
