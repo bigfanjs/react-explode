@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TweenLite, Power4 } from "gsap";
+import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     constructor(props) {
@@ -24,7 +24,7 @@ class Explosion extends Component {
 
     componentDidMount() {
         const ease = Power4.easeOut;
-        const size = this.props.size;
+        const { size, delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
         const center = size / 2;
         const halfs = this.halfs;
         const front = center - halfs[0];
@@ -43,9 +43,10 @@ class Explosion extends Component {
             const size = this.sizes[i];
             const { x, y } = positions[i];
             const delay = delays[i];
+            const tl = new TimelineMax({ delay, repeat, repeatDelay });
 
-            TweenLite.to(square, 1, { attr: { width: size, height: size, x, y }, delay, ease });
-            TweenLite.to(square, 1, { attr: { "stroke-width": 0 }, delay, ease });
+            tl.to(square, 1, { attr: { x, y, width: size, height: size }, ease });
+            tl.to(square, 1, { attr: { "stroke-width": 0 }, ease }, "-=0.9");
         }
     }
 
