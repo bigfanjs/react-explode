@@ -5,6 +5,13 @@ class Explosion extends Component {
     center = this.props.size / 2;
     size = this.props.size;
 
+    onStart = this.props.onStart;
+    onComplete = this.props.onComplete;
+    onRepeat = this.props.onRepeat;
+
+    sycle = 0;
+    start = 0;
+
     dest = 47.5;
     amplitude = 1.25;
     waveLength = 6000;
@@ -44,13 +51,15 @@ class Explosion extends Component {
             side.start += delay;
             side.delay = 0;
 
-            elapsed = timestamp - start;
+            elapsed = timestamp - side.start;
 
             const percent = elapsed / side.duration;
             const time = circOut(percent);
 
-            if (elapsed < side.duration) side.step = Math.round(this.size * this.dest / 100 * time);
-            else side.finished = true;
+            if (elapsed < side.duration) {
+                side.step = Math.round(this.size * this.dest / 100 * time);
+                side.finished = false;
+            } else side.finished = true;
         }
     };
 
@@ -63,7 +72,28 @@ class Explosion extends Component {
     }
 
     animate = (timestamp) => {
-        if (this.root.finished && this.edge.finished) return;
+        const isFinished = this.root.finished && this.edge.finished;
+
+        if (this.sycle === 0 && this.onStart) this.onStart();
+
+        if (isFinished && this.props.repeat <= this.sycle) {
+            this.onComplete && this.onComplete();
+            return;
+        }
+        if (isFinished) {
+            if (!this.start) this.start = timestamp;
+
+            let elapsed = timestamp - this.start;
+
+            if (elapsed >= this.props.repeatDelay * 1000) {
+                this.onRepeat && this.onRepeat();
+                this.root.start = null;
+                this.edge.start = null;
+                this.edge.delay = 80;
+                this.start = null;
+                this.sycle += 1;
+            }
+        }
 
         this.drawCurves();
         this.updateStart(timestamp);
