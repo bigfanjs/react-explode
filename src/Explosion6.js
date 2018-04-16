@@ -13,8 +13,8 @@ class Explosion extends Component {
     radius = 6.5;
 
     componentDidMount() {
-        const { delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
-        const tl = new TimelineMax({ delay, repeat, repeatDelay });
+        const { delay = 0, repeat = 0, repeatDelay = 0, onStart, onComplete, onRepeat } = this.props;
+        const tl = new TimelineMax({ delay, repeat, repeatDelay, onStart, onComplete, onRepeat });
 
         tl.add(this.animateShape(), 0);
         tl.add(this.animateBubbles(), "-=2");
