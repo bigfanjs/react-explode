@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TimelineLite, Power4, TweenLite, Power1 } from "gsap";
+import { TimelineMax, Power4, TweenLite, Power1 } from "gsap";
 
 class Explosion extends Component {
     paths = [];
@@ -13,8 +13,11 @@ class Explosion extends Component {
     radius = 6.5;
 
     componentDidMount() {
-        this.animateShape();
-        this.animateBubbles();
+        const { delay = 0, repeat = 0, repeatDelay = 0 } = this.props;
+        const tl = new TimelineMax({ delay, repeat, repeatDelay });
+
+        tl.add(this.animateShape(), 0);
+        tl.add(this.animateBubbles(), "-=2");
     }
 
     animateBubbles = () => {
@@ -25,15 +28,21 @@ class Explosion extends Component {
             [300, 0],
             [-200, 50]
         ];
+        const timelines = [];
 
         for (let i = 0; i < this.circles.length; i++) {
             const circle = this.circles[i];
             const origin = origins[i];
+            const timeline = new TimelineMax({ delay: (i + 1) / 5 });
 
-            TweenLite.from(circle, 1, { scale: 0, transformOrigin: "center", delay: (i + 1) / 10, ease });
-            TweenLite.to(circle, 1.5, { rotation: 120, transformOrigin: `${origin[0]}% ${origin[1]}%`, ease, delay: 0.15 * (i + 1) });
-            TweenLite.to(circle, 0.2, { "stroke-width": 0, delay: 0.7 + 0.15 * (i + 1) });
+            timeline.from(circle, 1, { scale: 0, transformOrigin: "center", ease });
+            timeline.to(circle, 1.5, { rotation: 120, transformOrigin: `${origin[0]}% ${origin[1]}%`, ease }, "-=0.9");
+            timeline.to(circle, 0.5, { opacity: 0 }, "-=1");
+
+            timelines.push(timeline);
         }
+
+        return timelines;
     }
 
     animateShape = () => {
@@ -41,6 +50,7 @@ class Explosion extends Component {
         const size = this.props.size;
         const left = (size * this.left) / 100;
         const sliced = (size * this.sliced) / 100;
+        const timelines = [];
 
         for (let i = 0; i < this.paths.length; i++) {
             const path = this.paths[i];
@@ -49,14 +59,16 @@ class Explosion extends Component {
             const degree = i % 2 == 0 ? (this.degree + this.ratio) : -(this.degree - this.ratio);
             const rotation = degree * ((i + 1) / 4);
 
-            const scaleTimeLine = new TimelineLite();
-            const rotationTimeLine = new TimelineLite();
+            const timeline = new TimelineMax();
 
-            scaleTimeLine.from(path, 1, { scale: 0, transformOrigin, ease });
-            rotationTimeLine
-                .to(path, 0.9, { rotation, ease })
-                .to(path, 0.5, { scale: 0, ease });
+            timeline.from(path, 1.5, { scale: 0, transformOrigin, ease });
+            timeline.to(path, 0.9, { rotation, ease }, "-=1.5");
+            timeline.to(path, 0.5, { scale: 0, ease });
+
+            timelines.push(timeline);
         }
+
+        return timelines;
     }
 
     render() {
