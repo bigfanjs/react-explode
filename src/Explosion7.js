@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TweenLite, Circ } from "gsap";
+import { TimelineMax, Circ } from "gsap";
 
 class Explosion extends Component {
     paths = [];
@@ -12,6 +12,8 @@ class Explosion extends Component {
     componentDidMount() {
         const ease = Circ.easeInOut;
         const offset = this.initExplosion * 2;
+        const { delay, repeat, repeatDelay, onStart, onComplete, onRepeat } = this.props;
+        const timelines = [];
 
         for (let i = 0; i < this.paths.length; i++) {
             const path = this.paths[i];
@@ -22,16 +24,22 @@ class Explosion extends Component {
             const yPercent = Math.sin(degree);
             const X = this.center + length * xPercent;
             const Y = this.center + length * yPercent;
+            const timeline = new TimelineMax({ delay: i < this.initExplosion ? 0 : 0.2 });
 
-            TweenLite.to(path, 0.7, { attr: { x2: X, y2: Y }, ease, delay: i < this.initExplosion ? 0 : 0.2 });
-            TweenLite.to(path, 0.7, { attr: { x1: X, y1: Y }, ease, delay: i < this.initExplosion ? 0.2 : 0.4 });
+            timeline.to(path, 0.7, { attr: { x2: X, y2: Y }, ease });
+            timeline.to(path, 0.7, { attr: { x1: X, y1: Y }, ease }, "-=0.5");
 
             if (i >= offset) {
                 const transformOrigin = `${xPercent >= 0 ? 0 : 100}% ${yPercent >= 0 ? 0 : 100}%`;
 
-                TweenLite.to(path, 0.5, { rotation: 90 * (j / 10), transformOrigin, ease, delay: 0.4 });
+                timeline.to(path, 0.5, { rotation: 90 * (j / 10), transformOrigin, ease }, "-=0.7");
             }
+
+            timelines.push(timeline);
         }
+
+        const timeline = new TimelineMax({ delay, repeat, repeatDelay, onStart, onComplete, onRepeat });
+        timeline.add(timelines);
     }
 
     render() {
@@ -47,7 +55,7 @@ class Explosion extends Component {
                         x2={this.center}
                         y2={this.center}
                         stroke="white"
-                        strokeWidth={size * this.strokeWidth / 100}
+                        strokeWidth={Math.ceil(size * this.strokeWidth / 100)}
                         ref={(el) => this.paths[i] = el}
                     />
                 ))}
