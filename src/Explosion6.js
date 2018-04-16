@@ -87,6 +87,7 @@ class Explosion extends Component {
             L ${this.center} ${this.center}
             L ${left}   ${bottom}
         `;
+        const strokeWidth = Math.ceil(size * 0.5 / 100);
 
         return (
             <svg width={size} height={size}>
@@ -97,7 +98,7 @@ class Explosion extends Component {
                                 ref={(el) => this.paths[i] = el}
                                 d={shape}
                                 stroke="white"
-                                strokeWidth={(size * 0.5) / 100}
+                                strokeWidth={strokeWidth}
                                 fill="white"
                             />
                             {i <= 2 &&
@@ -107,7 +108,7 @@ class Explosion extends Component {
                                     r={size * this.radius / 100}
                                     ref={(el) => this.circles[i] = el}
                                     stroke="white"
-                                    strokeWidth={(size * 0.5) / 100}
+                                    strokeWidth={strokeWidth}
                                     fill="none"
                                 />
                             }
