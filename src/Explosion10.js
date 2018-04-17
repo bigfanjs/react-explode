@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from "react";
-import { TweenLite, Power4 } from "gsap";
+import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     size = this.props.size;
@@ -11,37 +11,56 @@ class Explosion extends Component {
 
     radiuses = [47.5, 25];
 
-    crossSize = 12.5;
-    zigzagWidth = 5;
-    zigzagHight = 15;
+    crossSize = 20;
+    zigzagWidth = 10;
+    zigzagHight = 20;
 
-    strokeWidth = 0.5;
+    strokeWidth = 1;
 
     shapes = { zigzag: null, cross: null };
 
     componentDidMount() {
         const ease = Power4.easeOut;
         const radiuses = this.radiuses.map((radius) => this.size * radius / 100);
+        const tlgroup1 = [];
+        const tlgroup2 = [];
 
         for (let i = 0; i < 20; i++) {
+            const timeline = new TimelineMax();
+
             const zigzag = this.zigzags[i];
             const cross = this.crosses[i];
 
             const cos = Math.cos((Math.PI / 10) * i);
             const sin = Math.sin((Math.PI / 10) * i);
 
-            TweenLite.to(zigzag, 2, { x: radiuses[0] * cos, y: radiuses[0] * sin, ease });
-            TweenLite.to(zigzag, 3, { rotation: 360, scale: 0, transformOrigin: "50% 50%", ease });
-            TweenLite.to(cross, 2, { x: radiuses[1] * cos, y: radiuses[1] * sin, ease });
-            TweenLite.to(cross, 3, { rotation: 360, scale: 0, transformOrigin: "50% 50%", ease });
+            if (i < 12) {
+                const cos = Math.cos((Math.PI / 6) * i);
+                const sin = Math.sin((Math.PI / 6) * i);
 
+                timeline.to(zigzag, 2, { x: radiuses[0] * cos, y: radiuses[0] * sin, ease });
+                timeline.to(zigzag, 3, { rotation: 360, scale: 0, transformOrigin: "50% 50%", ease }, 0);
+            }
+            timeline.to(cross, 2, { x: radiuses[1] * cos, y: radiuses[1] * sin, ease }, 0);
+            timeline.to(cross, 3, { rotation: 360, scale: 0, transformOrigin: "50% 50%", ease }, 0);
+
+            tlgroup1.push(timeline);
             if (i < 2) {
+                const timeline = new TimelineMax({ delay: 0.5 * i });
                 const circle = this.circles[i];
 
-                TweenLite.to(circle, 2.5, { attr: { r: radiuses[0] }, delay: 0.5 * i, ease });
-                TweenLite.to(circle, 2, { opacity: 0, delay: 0.5 * (i + 1), ease });
+                timeline.to(circle, 2.5, { attr: { r: radiuses[0] }, ease });
+                timeline.to(circle, 2, { opacity: 0, ease }, "-=2");
+
+                tlgroup2.push(timeline);
             }
         }
+
+        const { repeat = 0, repeatDelay = 0, delay = 0, onStart, onComplete, onRepeat } = this.props;
+        const timeline = new TimelineMax({ repeat, repeatDelay, delay, onStart, onComplete, onRepeat });
+
+        timeline.add(tlgroup1, 0);
+        timeline.add(tlgroup2, 0);
     }
 
     componentWillMount() {
@@ -100,25 +119,38 @@ class Explosion extends Component {
         const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
         return (
-            <svg style={{ border: "1px solid" }} width={size} height={size} version="1.1">
+            <svg width={size} height={size} version="1.1">
                 {[...Array(20)].map((_, i) => (
                     <Fragment key={i}>
-                        <path d={zigzag} strokeWidth={strokeWidth} stroke="white" fill="none" ref={(el) => { this.zigzags[i] = el }} />
-                        <path d={cross} strokeWidth={strokeWidth} stroke="white" fill="none" ref={(el) => { this.crosses[i] = el }} />
+                        {i < 12 &&
+                            <path
+                                d={zigzag}
+                                strokeWidth={strokeWidth}
+                                stroke="rgb(255, 147, 234)"
+                                fill="none"
+                                ref={(el) => { this.zigzags[i] = el }}
+                            />
+                        }
+                        <path
+                            d={cross}
+                            strokeWidth={strokeWidth}
+                            stroke="rgb(1, 204, 245)"
+                            fill="none"
+                            ref={(el) => { this.crosses[i] = el }}
+                        />
                         {i < 2 &&
                             <circle
                                 cx={this.center}
                                 cy={this.center}
                                 r="0"
                                 fill="none"
-                                stroke="white"
+                                stroke="rgb(255, 208, 3)"
                                 strokeWidth={strokeWidth}
                                 ref={(el) => this.circles[i] = el}
                             />
                         }
                     </Fragment>
                 ))}
-                <circle cx="200" cy="200" r="2" />
             </svg>
         );
     }
