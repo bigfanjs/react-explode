@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TweenLite, Power4, TimelineMax } from "gsap";
+import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
     lines = [];
@@ -7,10 +7,11 @@ class Explosion extends Component {
     circles = [];
 
     squareSize = 25;
-    strokeWidth = 0.5;
+    strokeWidth = 0.7;
     dists = [47.4, 35, 42.5];
     circleRadius = 3.5;
     diff = 7.5;
+    lineColors = ["rgb(1, 204, 245)", "rgb(102, 1, 245)", "white"];
 
     count = 10;
     size = this.props.size;
@@ -99,7 +100,7 @@ class Explosion extends Component {
                                     key={i}
                                     strokeLinecap="round"
                                     strokeWidth={Math.ceil(this.size * (this.strokeWidth * 2) / 100)}
-                                    stroke="white"
+                                    stroke={this.lineColors[Math.floor(i / this.count)]}
                                 />
                                 {(i < this.count) &&
                                     <Fragment>
@@ -109,7 +110,7 @@ class Explosion extends Component {
                                             width={this.size * this.squareSize / 100}
                                             height={this.size * this.squareSize / 100}
                                             ref={(el) => this.squares[i] = el}
-                                            stroke="white"
+                                            stroke="rgb(255, 208, 3)"
                                             strokeWidth={Math.ceil(this.size * this.strokeWidth / 100)}
                                             fill="none"
                                         />
