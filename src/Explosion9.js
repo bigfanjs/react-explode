@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { TweenLite, Power4 } from "gsap";
+import { TweenLite, Power4, TimelineMax } from "gsap";
 
 class Explosion extends Component {
     lines = [];
@@ -9,7 +9,7 @@ class Explosion extends Component {
     squareSize = 25;
     strokeWidth = 0.5;
     dists = [47.4, 35, 42.5];
-    radius = 3.5;
+    circleRadius = 3.5;
     diff = 7.5;
 
     count = 10;
@@ -20,6 +20,9 @@ class Explosion extends Component {
         const dists = this.dists.map((dist) => this.size * dist / 100);
         const diff = this.size * this.diff / 100;
 
+        const tlgroup1 = [];
+        const tlgroup2 = [];
+
         const angle = Math.PI / 5;
         const ease = Power4.easeOut;
 
@@ -29,6 +32,7 @@ class Explosion extends Component {
         const transformOrigin = "50% 50%";
 
         for (let i = 0; i < this.lines.length; i++) {
+            const timeline = new TimelineMax({ delay: Math.floor(i / this.count) * 0.2 });
             const line = this.lines[i];
 
             const x = Math.cos(i * angle);
@@ -42,27 +46,38 @@ class Explosion extends Component {
             const start = { x2: linex, y2: liney };
             const end = { x1: linex, y1: liney };
 
-            const delay = Math.floor(i / this.count) * 0.2;
+            timeline.to(line, 0.7, { attr: start, ease });
+            timeline.to(line, 1.3, { attr: end, ease }, "-=0.7");
+            timeline.to(line, 0.5, { opacity: 0 }, "-=0.5");
 
-            TweenLite.to(line, 0.7, { attr: start, delay, ease });
-            TweenLite.to(line, 1.3, { attr: end, delay, ease });
-
+            tlgroup1.push(timeline);
             if (i < this.count) {
+                const timeline = new TimelineMax();
+
                 const square = this.squares[i];
                 const circle = this.circles[i];
 
                 // animate square
-                TweenLite.fromTo(square, 1, { rotation: i * 35, transformOrigin }, { rotation: "+=360", delay: 0.1, ease });
-                TweenLite.to(square, 1, { x: offsetX + dists[1] * x, y: offsetY + dists[1] * y, delay: 0.1, ease });
-                TweenLite.from(square, 1, { scale: 0, delay: 0.1, ease });
-                TweenLite.to(square, 1, { opacity: 0, delay: 0.6, ease });
+                timeline.fromTo(square, 1.5, { rotation: i * 35, transformOrigin }, { rotation: "+=360", ease });
+                timeline.add("start", "-=1.5");
+                timeline.to(square, 1.5, { x: offsetX + dists[1] * x, y: offsetY + dists[1] * y, ease }, "start");
+                timeline.from(square, 1.5, { scale: 0, ease }, "start");
+                timeline.to(square, 1, { opacity: 0, ease }, "start+=0.8");
 
                 // animate circle
-                TweenLite.to(circle, 1, { x: offsetX + dists[2] * x, y: offsetY + dists[2] * y, delay: 0.3, ease });
-                TweenLite.from(circle, 1, { scale: 0, transformOrigin, ease });
-                TweenLite.to(circle, 1, { scale: 0, transformOrigin, delay: 0.7, ease });
+                timeline.to(circle, 1.5, { x: offsetX + dists[2] * x, y: offsetY + dists[2] * y, ease }, "start+=0.3");
+                timeline.from(circle, 1.5, { scale: 0, transformOrigin, ease }, "start+=0.3");
+                timeline.to(circle, 1.5, { scale: 0, transformOrigin, ease }, "-=0.9");
+
+                tlgroup2.push(timeline);
             }
         }
+
+        const { repeat = 0, repeatDelay = 0, delay = 0, onStart, onComplete, onRepeat } = this.props;
+        const tl = new TimelineMax({ repeat, repeatDelay, delay, onStart, onComplete, onRepeat });
+
+        tl.add(tlgroup1, 0);
+        tl.add(tlgroup2, 0);
     }
 
     render() {
@@ -70,7 +85,7 @@ class Explosion extends Component {
         const center = this.center;
 
         return (
-            <svg style={{ border: "1px solid" }} width={size} height={size} version="1.1">
+            <svg width={size} height={size} version="1.1">
                 <Fragment>
                     {[...Array(this.count * 3)].map((_, i) => {
                         return (
@@ -82,6 +97,7 @@ class Explosion extends Component {
                                     y2={center}
                                     ref={(el) => this.lines[i] = el}
                                     key={i}
+                                    strokeLinecap="round"
                                     strokeWidth={Math.ceil(this.size * (this.strokeWidth * 2) / 100)}
                                     stroke="white"
                                 />
@@ -112,7 +128,6 @@ class Explosion extends Component {
                         )
                     })}
                 </Fragment>
-                <circle cx={this.center} cy={this.center} r="2" />
             </svg>
         );
     }
