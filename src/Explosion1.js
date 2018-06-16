@@ -55,7 +55,7 @@ class Explosion extends Component {
         const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
         return (
-            <svg width={size} height={size} version="1.1">
+            <svg width={size} height={size} style={style}>
                 <Fragment>
                     {[...Array(this.count)].map((_, i) => {
                         return (
