@@ -56,7 +56,7 @@ class Explosion extends Component {
     }
 
     render() {
-        const size = this.props.size;
+        const {size, style} = this.props;
         const center = size / 2;
         const front = center - this.halfs[0];
         const back = center + this.halfs[0];
@@ -70,7 +70,7 @@ class Explosion extends Component {
         ];
 
         return (
-            <svg width={size} height={size}>
+            <svg width={size} height={size} style={style}>
                 {[...Array(5)].map((square, i) => {
                     const { x, y } = positions[i];
 

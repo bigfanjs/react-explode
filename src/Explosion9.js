@@ -82,11 +82,11 @@ class Explosion extends Component {
     }
 
     render() {
-        const size = this.size;
+        const {size, style} = this.props;
         const center = this.center;
 
         return (
-            <svg width={size} height={size} version="1.1">
+            <svg width={size} height={size} style={style}>
                 <Fragment>
                     {[...Array(this.count * 3)].map((_, i) => {
                         return (

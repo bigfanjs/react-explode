@@ -133,11 +133,11 @@ class Explosion extends Component {
     )
 
     render() {
-        const size = this.size;
+        const {size, style} = this.props;
         const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
 
         return (
-            <svg width={this.size} height={this.size} version="1.1">
+            <svg width={this.size} height={this.size} style={style}>
                 <path stroke="white" fill="none" strokeWidth={strokeWidth} ref={(el) => this.curve = el} />
             </svg>
         );

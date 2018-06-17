@@ -43,10 +43,10 @@ class Explosion extends Component {
     }
 
     render() {
-        const size = this.props.size;
+        const {size, style} = this.props;
 
         return (
-            <svg width={size} height={size}>
+            <svg width={size} height={size} style={style}>
                 {[...Array(64)].map((_, i) => (
                     <line
                         key={i}

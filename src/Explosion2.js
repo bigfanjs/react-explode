@@ -35,7 +35,7 @@ class Explosion extends Component {
         const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
 
         return (
-            <svg width={size} height={size}>
+            <svg width={size} height={size} style={style}>
                 <circle
                     cx={center}
                     cy={center}

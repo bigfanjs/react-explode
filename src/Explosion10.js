@@ -114,12 +114,12 @@ class Explosion extends Component {
     )
 
     render() {
-        const size = this.size;
+        const {size, style} = this.props;
         const { zigzag, cross } = this.shapes;
         const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
 
         return (
-            <svg width={size} height={size} version="1.1">
+            <svg width={size} height={size} style={style}>
                 {[...Array(20)].map((_, i) => (
                     <Fragment key={i}>
                         {i < 12 &&

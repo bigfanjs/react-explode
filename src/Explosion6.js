@@ -72,7 +72,7 @@ class Explosion extends Component {
     }
 
     render() {
-        const size = this.props.size;
+        const {size, style} = this.props;
         const height = (size * this.height) / 100
         const left = (size * this.left) / 100;
         const sliced = (size * this.sliced) / 100;
@@ -90,7 +90,7 @@ class Explosion extends Component {
         const strokeWidth = Math.ceil(size * 0.5 / 100);
 
         return (
-            <svg width={size} height={size}>
+            <svg width={size} height={size} style={style}>
                 {[...Array(4)].map((_, i) => {
                     return (
                         <Fragment key={i}>
