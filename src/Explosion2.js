@@ -1,36 +1,63 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { TimelineMax, Power4 } from "gsap";
 
 class Explosion extends Component {
-    size = this.props.size;
-    center = this.size / 2;
+    state = { size: 400, delay: 0, repeatDelay: 0, repeat: 0 };
 
+    timeline = null;
     radius = 47.5;
     strokeWidth = 1;
 
-    componentDidMount() {
-        const { repeat = 0, repeatDelay = 0, delay = 0, onStart, onRepeat, onComplete } = this.props;
-        const ease = Power4.easeOut;
-        const radius = this.size * this.radius / 100;
-        const strokeWidth = Math.ceil(this.size * this.strokeWidth / 100);
+    static getDerivedStateFromProps({ size, delay, repeatDelay, repeat }, prevState) {
+        if (size !== prevState.size               ||
+            delay !== prevState.delay             ||
+            repeatDelay !== prevState.repeatDelay ||
+            repeat !== prevState.repeat
+        ) return { size, delay, repeatDelay, repeat };
 
-        const timeline = new TimelineMax({
+        return null;
+    }
+
+    componentDidMount() {
+        this.explode();
+    }
+
+    componentDidUpdate() {
+        this.timeline.kill();
+        this.explode();
+    }
+
+    explode = () => {
+        const { size, repeat, repeatDelay, delay } = this.state;
+        const { onStart, onRepeat, onComplete } = this.props;
+        const ease = Power4.easeOut;
+        const radius = size * this.radius / 100;
+        const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
+
+        this.timeline = new TimelineMax({
             repeat,
             repeatDelay,
+            delay,
             onStart: onStart,
             onComplete: onComplete,
             onRepeat: onRepeat
         });
 
-        timeline
-            .to(this.circle, 1, { attr: { r: radius }, ease })
-            .to(this.circle, 0.8, { attr: { "stroke-width": 0 }, ease }, "-=0.5")
+        this.timeline
+            .fromTo(this.circle, 1, { attr: { r: 0 }}, { attr: { r: radius }, ease })
+            .fromTo(
+                this.circle,
+                0.8,
+                { attr: { "stroke-width": strokeWidth }, ease },
+                { attr: { "stroke-width": 0 }, ease },
+                "-=0.5"
+            )
             .set(this.circle, { attr: { "stroke-width": strokeWidth } }, "-=1");
     }
 
     render() {
-        const size = this.size;
-        const center = this.center;
+        const size = this.state.size;
+        const center = size / 2;
         const { style, color = "white" } = this.props;
         const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
 
