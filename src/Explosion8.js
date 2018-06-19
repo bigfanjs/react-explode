@@ -72,6 +72,8 @@ class Explosion extends Component {
     }
 
     animate = (timestamp) => {
+        if (!this.curve) return null;
+
         const isFinished = this.root.finished && this.edge.finished;
 
         if (this.sycle === 0 && this.onStart) this.onStart();
