@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx babel src --out-dir ."
   },
+  "repository": "https://github.com/bigfanjs/react-explode",
   "keywords": [
     "react",
     "explosion",
