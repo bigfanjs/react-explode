@@ -1,5 +1,6 @@
 # React-explode
 React Explode is a collection of explosion animations made in SVG and GSAP.
+[see a demo demo](https://bigfanjs.github.io/react-explode-demo/)
 
 # Instalation
 ``npm install`` or ``yarn install``
