@@ -1,8 +1,5 @@
 {
-  "plugins": [
-    "react",
-    "jsx-a11y"
-  ],
+  "plugins": ["react", "jsx-a11y", "react-hooks"],
   "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 6,
@@ -13,21 +10,20 @@
       "experimentalObjectRestSpread": true
     }
   },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "env": {
     "es6": true,
     "browser": true,
     "node": true,
     "mocha": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:react/recommended"],
   "rules": {
-    "strict": [
-      2,
-      "safe"
-    ],
+    "strict": [2, "safe"],
     "no-debugger": 2,
     "brace-style": [
       2,
@@ -38,29 +34,14 @@
     ],
     "no-trailing-spaces": 2,
     "keyword-spacing": 2,
-    "space-before-function-paren": [
-      2,
-      "never"
-    ],
-    "spaced-comment": [
-      2,
-      "always"
-    ],
+    "space-before-function-paren": [2, "never"],
+    "spaced-comment": [2, "always"],
     "vars-on-top": 2,
     "no-undef": 2,
     "no-undefined": 2,
-    "comma-dangle": [
-      2,
-      "never"
-    ],
-    "quotes": [
-      2,
-      "double"
-    ],
-    "semi": [
-      2,
-      "always"
-    ],
+    "comma-dangle": [2, "never"],
+    "quotes": [2, "double"],
+    "semi": [2, "always"],
     "guard-for-in": 2,
     "no-eval": 2,
     "no-with": 2,
@@ -71,12 +52,10 @@
     "no-unreachable": 1,
     "no-unused-expressions": 1,
     "no-magic-numbers": 0,
-    "max-len": [
-      1,
-      100,
-      4
-    ],
+    "max-len": [1, 100, 4],
     "react/prefer-es6-class": 1,
-    "react/prop-types": 0
+    "react/prop-types": 0,
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }
