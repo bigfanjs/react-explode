@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx babel src --out-dir .",
-    "watch": "npx babel src --out-dir . --watch"
+    "watch": "npx babel src --out-dir . --watch",
+    "clean": "rm -rf node_modules/ package-lock.json yarn-error.log yarn.lock *.js"
   },
   "repository": "https://github.com/bigfanjs/react-explode",
   "keywords": [
@@ -26,7 +27,8 @@
     "eslint-plugin-react": "^7.16.0",
     "eslint-watch": "^6.0.1",
     "gsap": "^2.0.1",
-    "react": "16.10.2"
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
