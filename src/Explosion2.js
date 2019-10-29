@@ -1,80 +1,96 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { TimelineMax, Power4 } from "gsap";
 
-class Explosion extends Component {
-    state = { size: 400, delay: 0, repeatDelay: 0, repeat: 0 };
+const RADIUS = 47.5;
+const STROKE_WIDTH = 1;
 
-    timeline = null;
-    radius = 47.5;
-    strokeWidth = 1;
+let TIME_LINE = null;
 
-    static getDerivedStateFromProps({ size, delay, repeatDelay, repeat }, prevState) {
-        if (size !== prevState.size               ||
-            delay !== prevState.delay             ||
-            repeatDelay !== prevState.repeatDelay ||
-            repeat !== prevState.repeat
-        ) return { size, delay, repeatDelay, repeat };
+export default function Explosion2({
+  size,
+  delay,
+  repeatDelay,
+  repeat,
+  style,
+  color = "white",
+  onComplete,
+  onStart,
+  onRepeat
+}) {
+  const [prevSize, setPrevSize] = useState(400);
+  const [prevDelay, setPrevDelay] = useState(0);
+  const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
+  const [prevRepeat, setPrevRepeat] = useState(0);
+  const circleRef = useRef();
 
-        return null;
-    }
+  const center = size / 2;
+  const strokeWidth = Math.ceil((size * STROKE_WIDTH) / 100);
 
-    componentDidMount() {
-        this.explode();
-    }
+  const explode = useCallback(() => {
+    const ease = Power4.easeOut;
+    const radius = (prevSize * RADIUS) / 100;
+    const strokeWidth = Math.ceil((prevSize * STROKE_WIDTH) / 100);
 
-    componentDidUpdate() {
-        this.timeline.kill();
-        this.explode();
-    }
+    TIME_LINE = new TimelineMax({
+      repeat: prevRepeat,
+      repeatDelay: prevRepeatDelay,
+      delay: prevDelay,
+      onStart: onStart,
+      onComplete: onComplete,
+      onRepeat: onRepeat
+    });
 
-    explode = () => {
-        const { size, repeat, repeatDelay, delay } = this.state;
-        const { onStart, onRepeat, onComplete } = this.props;
-        const ease = Power4.easeOut;
-        const radius = size * this.radius / 100;
-        const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
+    TIME_LINE.fromTo(
+      circleRef.current,
+      1,
+      { attr: { r: 0 } },
+      { attr: { r: radius }, ease }
+    )
+      .fromTo(
+        circleRef.current,
+        0.8,
+        { attr: { "stroke-width": strokeWidth, opacity: 1 }, ease },
+        { attr: { "stroke-width": 0, opacity: 0 }, ease },
+        "-=0.5"
+      )
+      .set(circleRef.current, { attr: { "stroke-width": strokeWidth } }, "-=1");
+  }, [
+    prevSize,
+    prevRepeat,
+    prevDelay,
+    prevRepeatDelay,
+    onComplete,
+    onStart,
+    onRepeat
+  ]);
 
-        this.timeline = new TimelineMax({
-            repeat,
-            repeatDelay,
-            delay,
-            onStart: onStart,
-            onComplete: onComplete,
-            onRepeat: onRepeat
-        });
+  useEffect(() => {
+    explode();
+  }, [explode]);
 
-        this.timeline
-            .fromTo(this.circle, 1, { attr: { r: 0 }}, { attr: { r: radius }, ease })
-            .fromTo(
-                this.circle,
-                0.8,
-                { attr: { "stroke-width": strokeWidth }, ease },
-                { attr: { "stroke-width": 0 }, ease },
-                "-=0.5"
-            )
-            .set(this.circle, { attr: { "stroke-width": strokeWidth } }, "-=1");
-    }
+  useEffect(() => {
+    TIME_LINE.kill();
+    explode();
+  });
 
-    render() {
-        const size = this.state.size;
-        const center = size / 2;
-        const { style, color = "white" } = this.props;
-        const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
+  useEffect(() => {
+    setPrevSize(size);
+    setPrevDelay(delay);
+    setPrevRepeatDelay(repeatDelay);
+    setPrevRepeat(repeat);
+  }, [size, delay, repeatDelay, repeat]);
 
-        return (
-            <svg width={size} height={size} style={style}>
-                <circle
-                    cx={center}
-                    cy={center}
-                    r={0}
-                    strokeWidth={strokeWidth}
-                    stroke={color}
-                    fill="none"
-                    ref={(el) => this.circle = el}
-                />
-            </svg>
-        );
-    }
+  return (
+    <svg width={size} height={size} style={style}>
+      <circle
+        cx={center}
+        cy={center}
+        r={0}
+        strokeWidth={strokeWidth}
+        stroke={color}
+        fill="none"
+        ref={circleRef}
+      />
+    </svg>
+  );
 }
-
-export default Explosion;
