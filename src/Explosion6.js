@@ -9,6 +9,12 @@ const DEGREE = 360;
 const RATIO = 25;
 const SHAPE_WIDTH = 82.5;
 const SHAPE_HEIGHT = 7.5;
+const CIRCLE_SIZE = 13;
+const ORIGINS = [
+  [400, 50],
+  [400, 100],
+  [-300, 50]
+];
 
 let TIME_LINE = null;
 
@@ -31,34 +37,40 @@ export default function Explosion6({
 
   const animateBubbles = useCallback(() => {
     const ease = Power4.easeOut;
-    const origins = [
-      [300, 50],
-      [300, 0],
-      [-200, 50]
-    ];
     const timelines = [];
 
     for (let i = 0; i < CIRCLES.length; i++) {
       const circle = CIRCLES[i];
-      const origin = origins[i];
+      const origin = ORIGINS[i];
       const timeline = new TimelineMax({ delay: (i + 1) / 5 });
 
-      timeline.set(circle, { x: "-50%", y: "-50%" });
-      timeline.from(circle, 1, { scale: 0, transformOrigin: "50% 50%", ease });
-      timeline.to(
+      timeline.set(circle, {
+        rotation: 0,
+        opacity: 1,
+        scale: 0.3,
+        transformOrigin: "center",
+        x: 0,
+        y: 0
+      });
+      timeline.fromTo(
         circle,
         1.5,
         {
-          rotation: 120,
-          scale: 1,
-          x: "200%",
-          y: "150%",
-          // transformOrigin: `${origin[0]}% ${origin[1]}%`,
+          rotation: 0,
+          opacity: 1,
+          scale: 0,
+          x: `${origin[0] * -1}%`,
+          y: `${origin[1] * -1}%`,
           ease
         },
-        "-=0.9"
+        {
+          rotation: 120,
+          scale: 1,
+          transformOrigin: `${origin[0]}% ${origin[1]}%`,
+          ease
+        }
       );
-      timeline.to(circle, 0.5, { opacity: 0 }, "-=1");
+      timeline.to(circle, 0.5, { opacity: 0 }, "-=0.8");
 
       timelines.push(timeline);
     }
@@ -132,7 +144,6 @@ export default function Explosion6({
       style={{
         width: prevSize,
         height: prevSize,
-        border: "1px solid #fff",
         position: "relative",
         ...style
       }}
@@ -162,9 +173,11 @@ export default function Explosion6({
                 style={{
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%, -50%) scale(0)",
                   transformOrigin: "50% 50%",
-                  position: "absolute"
+                  position: "absolute",
+                  width: `${CIRCLE_SIZE}%`,
+                  height: `${CIRCLE_SIZE}%`
                 }}
               />
             )}
