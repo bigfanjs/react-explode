@@ -1,149 +1,103 @@
-import React, { Component } from "react";
-import circOut from "eases/expo-out";
+import React, { useState, useEffect, useCallback } from "react";
+import { TimelineMax, Power2 } from "gsap";
+import Wave from "./Icons/Wave";
 
-class Explosion extends Component {
-    center = this.props.size / 2;
-    size = this.props.size;
+const COUNT = 8;
+const PATHS = [];
+const WAVE_WIDTH = 50;
+const WAVE_HEIGHT = 3.75;
 
-    onStart = this.props.onStart;
-    onComplete = this.props.onComplete;
-    onRepeat = this.props.onRepeat;
+let TIMELINE = null;
 
-    sycle = 0;
-    start = 0;
+export default function Exploion8({
+  size,
+  delay,
+  repeatDelay,
+  repeat,
+  style,
+  color = "white",
+  onComplete,
+  onStart,
+  onRepeat
+}) {
+  const [prevSize, setPrevSize] = useState(400);
+  const [prevDelay, setPrevDelay] = useState(0);
+  const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
+  const [prevRepeat, setPrevRepeat] = useState(0);
 
-    dest = 47.5;
-    amplitude = 1.25;
-    waveLength = 6000;
-    strokeWidth = 0.5;
+  const center = prevSize / 2;
 
-    root = {
-        start: null,
-        end: null,
-        duration: 1100,
-        step: 0,
-        delay: 0,
-        finished: false
-    };
+  const explode = useCallback(() => {
+    const timelines = [];
 
-    edge = {
-        start: null,
-        end: null,
-        duration: 1100,
-        step: 0,
-        delay: 80,
-        finished: false
-    };
+    for (let i = 0; i < COUNT; i++) {
+      const target = PATHS[i];
 
-    componentDidMount() {
-        requestAnimationFrame(this.animate);
+      const timeline = new TimelineMax();
+
+      timeline.set(target, { attr: { "stroke-dashoffset": 279 } });
+      timeline.fromTo(
+        target,
+        1,
+        { attr: { "stroke-dasharray": "279 279" } },
+        { attr: { "stroke-dasharray": "0 279" }, ease: Power2.easeInOut }
+      );
+
+      timelines.push(timeline);
     }
 
-    update = (side, timestamp) => {
-        const { delay, start, end } = side;
+    TIMELINE = new TimelineMax({
+      repeat: prevRepeat,
+      delay: prevDelay,
+      repeatDelay: prevRepeatDelay,
+      onComplete,
+      onStart,
+      onRepeat
+    });
 
-        if (!start) side.start = timestamp;
-        if (!end) side.end = side.start - side.duration;
+    TIMELINE.add(timelines);
+  }, [onRepeat, onStart, onComplete, prevRepeat, prevDelay, prevRepeatDelay]);
 
-        let elapsed = timestamp - side.start;
+  useEffect(() => {
+    if (TIMELINE) TIMELINE.kill();
+  });
 
-        if (elapsed >= delay) {
-            side.start += delay;
-            side.delay = 0;
+  useEffect(() => {
+    setPrevSize(size);
+    setPrevDelay(delay);
+    setPrevRepeatDelay(repeatDelay);
+    setPrevRepeat(repeat);
+  }, [size, delay, repeatDelay, repeat]);
 
-            elapsed = timestamp - side.start;
+  useEffect(() => {
+    explode();
+  }, [explode]);
 
-            const percent = elapsed / side.duration;
-            const time = circOut(percent);
+  useEffect(() => {
+    explode();
+  });
 
-            if (elapsed < side.duration) {
-                side.step = Math.round(this.size * this.dest / 100 * time);
-                side.finished = false;
-            } else side.finished = true;
-        }
-    };
-
-    updateStart = (timestamp) => {
-        this.update(this.root, timestamp);
-    }
-
-    updateEnd = (timestamp) => {
-        this.update(this.edge, timestamp);
-    }
-
-    animate = (timestamp) => {
-        if (!this.curve) return null;
-
-        const isFinished = this.root.finished && this.edge.finished;
-
-        if (this.sycle === 0 && this.onStart) this.onStart();
-
-        if (isFinished && this.props.repeat <= this.sycle) {
-            this.onComplete && this.onComplete();
-            return;
-        }
-        if (isFinished) {
-            if (!this.start) this.start = timestamp;
-
-            let elapsed = timestamp - this.start;
-
-            if (elapsed >= this.props.repeatDelay * 1000) {
-                this.onRepeat && this.onRepeat();
-                this.root.start = null;
-                this.edge.start = null;
-                this.edge.delay = 80;
-                this.start = null;
-                this.sycle += 1;
-            }
-        }
-
-        this.drawCurves();
-        this.updateStart(timestamp);
-        this.updateEnd(timestamp);
-
-        requestAnimationFrame(this.animate);
-    }
-
-    drawCurves = () => {
-        const waveLength = (this.waveLength / this.size) * Math.PI / 180;
-        const degree = 45 * Math.PI / 180;
-        const path = [];
-
-        const start = this.root.step;
-        const end = this.edge.step;
-
-        const amplitude = this.size * this.amplitude / 100;
-
-        for (let i = 0; i < 8; i++) {
-            for (let j = end; j < start; j++) {
-                const x = this.center + j * Math.cos(degree * i) - amplitude * Math.sin(degree * i) * Math.sin(j * waveLength);
-                const y = this.center + j * Math.sin(degree * i) + amplitude * Math.cos(degree * i) * Math.sin(j * waveLength);
-
-                j === end && path.push({ type: "M", values: [x, y] });
-                j > end && path.push({ type: "L", values: [x, y] });
-            }
-
-            const data = this.createPathData(path);
-            this.curve.setAttribute("d", data);
-        }
-    }
-
-    createPathData = (data) => (
-        data.reduce((string, { type, values }) => {
-            return string + `${type}${values[0]} ${values[1]} `;
-        }, "")
-    )
-
-    render() {
-        const {size, style} = this.props;
-        const strokeWidth = Math.ceil(size * this.strokeWidth / 100);
-
+  return (
+    <div style={{ width: prevSize, height: prevSize, ...style }}>
+      {Array.from(Array(COUNT)).map((_, i) => {
         return (
-            <svg width={this.size} height={this.size} style={style}>
-                <path stroke="white" fill="none" strokeWidth={strokeWidth} ref={(el) => this.curve = el} />
-            </svg>
+          <Wave
+            key={i}
+            innerRef={el => (PATHS[i] = el)}
+            color={color}
+            width={`${WAVE_WIDTH}%`}
+            height={`${WAVE_HEIGHT}%`}
+            style={{
+              position: "absolute",
+              left: center,
+              top: center,
+              transform: `translateY(-50%) rotate(${45 * i}deg)`,
+              transformOrigin: "left center",
+              strokeWidth: 2
+            }}
+          />
         );
-    }
+      })}
+    </div>
+  );
 }
-
-export default Explosion;
