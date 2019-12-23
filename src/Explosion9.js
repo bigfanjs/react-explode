@@ -1,137 +1,144 @@
-import React, { Component, Fragment } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { TimelineMax, Power4 } from "gsap";
 
-class Explosion extends Component {
-    lines = [];
-    squares = [];
-    circles = [];
+const LINES = [];
+const STROKE_WIDTH = 0.7;
+const DISTS = [47.4, 50, 42.5];
+const DIFF = 4;
+const COUNT = 10;
 
-    squareSize = 25;
-    strokeWidth = 0.7;
-    dists = [47.4, 35, 42.5];
-    circleRadius = 3.5;
-    diff = 7.5;
-    lineColors = ["rgb(1, 204, 245)", "rgb(102, 1, 245)", "white"];
+let TIMELINE = null;
 
-    count = 10;
-    size = this.props.size;
-    center = this.size / 2;
+export default function Explosion9({
+  size = 400,
+  delay,
+  repeatDelay,
+  repeat,
+  style,
+  color = "white",
+  onComplete,
+  onStart,
+  onRepeat
+}) {
+  const [prevSize, setPrevSize] = useState(size);
+  const [prevDelay, setPrevDelay] = useState(0);
+  const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
+  const [prevRepeat, setPrevRepeat] = useState(0);
 
-    componentDidMount() {
-        const dists = this.dists.map((dist) => this.size * dist / 100);
-        const diff = this.size * this.diff / 100;
+  const center = prevSize / 2;
 
-        const tlgroup1 = [];
-        const tlgroup2 = [];
+  const explode = useCallback(() => {
+    const dists = DISTS.map(dist => (prevSize * dist) / 100);
+    const diff = (prevSize * DIFF) / 100;
 
-        const angle = Math.PI / 5;
-        const ease = Power4.easeOut;
+    const tlgroup1 = [];
 
-        const offsetX = Math.cos(Math.PI / 10);
-        const offsetY = Math.sin(Math.PI / 10);
+    const angle = Math.PI / 5;
+    const ease = Power4.easeOut;
 
-        const transformOrigin = "50% 50%";
+    const offsetX = Math.cos(Math.PI / 10);
+    const offsetY = Math.sin(Math.PI / 10);
 
-        for (let i = 0; i < this.lines.length; i++) {
-            const timeline = new TimelineMax({ delay: Math.floor(i / this.count) * 0.2 });
-            const line = this.lines[i];
+    for (let i = 0; i < LINES.length; i++) {
+      const timeline = new TimelineMax({
+        delay: Math.floor(i / COUNT) * 0.2
+      });
+      const line = LINES[i];
 
-            const x = Math.cos(i * angle);
-            const y = Math.sin(i * angle);
+      const x = Math.cos(i * angle);
+      const y = Math.sin(i * angle);
 
-            const space = (Math.floor(i / this.count) + 1) * diff;
+      const space = (Math.floor(i / COUNT) + 1) * diff;
 
-            const linex = this.center + offsetX + (dists[0] - space) * x;
-            const liney = this.center + offsetY + (dists[0] - space) * y;
+      const linex = center + offsetX + (dists[0] - space) * x;
+      const liney = center + offsetY + (dists[0] - space) * y;
 
-            const start = { x2: linex, y2: liney };
-            const end = { x1: linex, y1: liney };
+      const start = { x2: linex, y2: liney };
+      const end = { x1: linex, y1: liney };
 
-            timeline.to(line, 0.7, { attr: start, ease });
-            timeline.to(line, 1.3, { attr: end, ease }, "-=0.7");
-            timeline.to(line, 0.5, { opacity: 0 }, "-=0.5");
+      timeline.fromTo(
+        line,
+        0.7,
+        { attr: { x2: center, y2: center } },
+        { attr: start, ease }
+      );
+      timeline.fromTo(
+        line,
+        1.3,
+        { attr: { x1: center, y1: center } },
+        { attr: end, ease },
+        "-=0.7"
+      );
+      timeline.fromTo(
+        line,
+        0.3,
+        { strokeWidth: Math.ceil((prevSize * (STROKE_WIDTH * 2)) / 100) },
+        { strokeWidth: 0 },
+        `-=${[0.7, 0.6, 0.5][Math.floor(i / COUNT)]}`
+      );
 
-            tlgroup1.push(timeline);
-            if (i < this.count) {
-                const timeline = new TimelineMax();
-
-                const square = this.squares[i];
-                const circle = this.circles[i];
-
-                // animate square
-                timeline.fromTo(square, 1.5, { rotation: i * 35, transformOrigin }, { rotation: "+=360", ease });
-                timeline.add("start", "-=1.5");
-                timeline.to(square, 1.5, { x: offsetX + dists[1] * x, y: offsetY + dists[1] * y, ease }, "start");
-                timeline.from(square, 1.5, { scale: 0, ease }, "start");
-                timeline.to(square, 1, { opacity: 0, ease }, "start+=0.8");
-
-                // animate circle
-                timeline.to(circle, 1.5, { x: offsetX + dists[2] * x, y: offsetY + dists[2] * y, ease }, "start+=0.3");
-                timeline.from(circle, 1.5, { scale: 0, transformOrigin, ease }, "start+=0.3");
-                timeline.to(circle, 1.5, { scale: 0, transformOrigin, ease }, "-=0.9");
-
-                tlgroup2.push(timeline);
-            }
-        }
-
-        const { repeat = 0, repeatDelay = 0, delay = 0, onStart, onComplete, onRepeat } = this.props;
-        const tl = new TimelineMax({ repeat, repeatDelay, delay, onStart, onComplete, onRepeat });
-
-        tl.add(tlgroup1, 0);
-        tl.add(tlgroup2, 0);
+      tlgroup1.push(timeline);
     }
 
-    render() {
-        const {size, style} = this.props;
-        const center = this.center;
+    TIMELINE = new TimelineMax({
+      repeat: prevRepeat,
+      repeatDelay: prevRepeatDelay,
+      delay: prevDelay,
+      onStart,
+      onComplete,
+      onRepeat
+    });
 
-        return (
-            <svg width={size} height={size} style={style}>
-                <Fragment>
-                    {[...Array(this.count * 3)].map((_, i) => {
-                        return (
-                            <Fragment key={i}>
-                                <line
-                                    x1={center}
-                                    y1={center}
-                                    x2={center}
-                                    y2={center}
-                                    ref={(el) => this.lines[i] = el}
-                                    key={i}
-                                    strokeLinecap="round"
-                                    strokeWidth={Math.ceil(this.size * (this.strokeWidth * 2) / 100)}
-                                    stroke={this.lineColors[Math.floor(i / this.count)]}
-                                />
-                                {(i < this.count) &&
-                                    <Fragment>
-                                        <rect
-                                            x={center - this.size * this.squareSize / 100 / 2}
-                                            y={center - this.size * this.squareSize / 100 / 2}
-                                            width={this.size * this.squareSize / 100}
-                                            height={this.size * this.squareSize / 100}
-                                            ref={(el) => this.squares[i] = el}
-                                            stroke="rgb(255, 208, 3)"
-                                            strokeWidth={Math.ceil(this.size * this.strokeWidth / 100)}
-                                            fill="none"
-                                        />
-                                        <circle
-                                            cx={center}
-                                            cy={center}
-                                            r={this.size * this.circleRadius / 100}
-                                            ref={(el) => this.circles[i] = el}
-                                            stroke="white"
-                                            strokeWidth={Math.ceil(this.size * this.strokeWidth / 100)}
-                                            fill="none"
-                                        />
-                                    </Fragment>
-                                }
-                            </Fragment>
-                        )
-                    })}
-                </Fragment>
-            </svg>
-        );
-    }
+    TIMELINE.add(tlgroup1, 0);
+  }, [
+    center,
+    prevDelay,
+    prevRepeatDelay,
+    onStart,
+    onComplete,
+    onRepeat,
+    prevSize,
+    prevRepeat
+  ]);
+
+  useEffect(() => {
+    if (TIMELINE) TIMELINE.kill();
+  });
+
+  useEffect(() => {
+    explode();
+  }, [explode]);
+
+  useEffect(() => {
+    setPrevSize(size);
+    setPrevDelay(delay);
+    setPrevRepeatDelay(repeatDelay);
+    setPrevRepeat(repeat);
+  }, [size, delay, repeatDelay, repeat]);
+
+  return (
+    <svg
+      width={prevSize}
+      height={prevSize}
+      style={{ border: "1px solid #fff", ...style }}
+    >
+      <>
+        {[...Array(COUNT * 3)].map((_, i) => {
+          return (
+            <line
+              key={i}
+              x1={center}
+              y1={center}
+              x2={center}
+              y2={center}
+              ref={el => (LINES[i] = el)}
+              strokeLinecap="round"
+              strokeWidth={Math.ceil((prevSize * (STROKE_WIDTH * 2)) / 100)}
+              stroke={color}
+            />
+          );
+        })}
+      </>
+    </svg>
+  );
 }
-
-export default Explosion;
