@@ -117,11 +117,7 @@ export default function Explosion9({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <svg
-      width={prevSize}
-      height={prevSize}
-      style={{ border: "1px solid #fff", ...style }}
-    >
+    <svg width={prevSize} height={prevSize} style={style}>
       <>
         {[...Array(COUNT * 3)].map((_, i) => {
           return (
