@@ -1,30 +1,37 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
-export default function Circle({
-  width = 52,
-  height = 52,
-  innerRef,
-  stroke = "white",
-  strokeWidth,
-  style
-}) {
+function Circle(
+  {
+    width = 52,
+    height = 52,
+    circleRef,
+    strokeWidth,
+    radius = 5,
+    color = "#fff",
+    style
+  },
+  ref
+) {
   return (
     <svg
       version="1.1"
       viewBox="0 0 52 52"
       width={width}
       height={height}
-      ref={innerRef}
       style={style}
+      ref={ref}
     >
       <circle
+        ref={circleRef}
         cx="26"
         cy="26"
-        r="24"
-        stroke={stroke}
+        r={radius}
+        stroke={color}
         strokeWidth={strokeWidth}
         fill="none"
       />
     </svg>
   );
 }
+
+export default forwardRef(Circle);
