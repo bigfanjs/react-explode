@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 
 const SQUARE = [];
 const STROKE_WIDTH = 2.5;
@@ -75,7 +75,7 @@ export default function Explosion5({
       const start = positions.start[i];
       const end = positions.end[i];
       const delay = delays[i];
-      const timeline = new TimelineMax({
+      const timeline = gsap.timeline({
         delay,
         onStart: i === 0 && onStart,
         onComplete: i === 0 && onComplete,
@@ -100,7 +100,7 @@ export default function Explosion5({
       timelines.push(timeline);
     }
 
-    TIME_LINE = new TimelineMax({
+    TIME_LINE = gsap.timeline({
       delay: prevDelay,
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay
@@ -133,8 +133,6 @@ export default function Explosion5({
     TIME_LINE.kill();
     explode();
   });
-
-  console.log("render");
 
   return (
     <svg width={prevSize} height={prevSize} style={style}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { TimelineMax, Circ } from "gsap";
+import gsap, { Circ } from "gsap";
 
 const PATHS = [];
 const DEGREE = (90 * Math.PI) / 180;
@@ -45,7 +45,7 @@ export default function Explosion7({
       const yOffset = (i < INIT_EXPLOSION ? GAP : 0) * Math.sin(DEGREE * i);
       const X = center + length * xPercent;
       const Y = center + length * yPercent;
-      const timeline = new TimelineMax({
+      const timeline = gsap.timeline({
         delay: i < INIT_EXPLOSION ? 0 : 0.2
       });
 
@@ -80,7 +80,7 @@ export default function Explosion7({
       timelines.push(timeline);
     }
 
-    TIMELINE = new TimelineMax({
+    TIMELINE = gsap.timeline({
       delay: prevDelay,
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 
 const RADIUS = 47.5;
 const STROKE_WIDTH = 1;
@@ -31,7 +31,7 @@ export default function Explosion2({
     const radius = (prevSize * RADIUS) / 100;
     const strokeWidth = Math.ceil((prevSize * STROKE_WIDTH) / 100);
 
-    TIME_LINE = new TimelineMax({
+    TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay,
       delay: prevDelay,

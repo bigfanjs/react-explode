@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useRef
 } from "react";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 
 const TARGETS = [[]];
 const RADIUSES = [47.4, 30];
@@ -41,7 +41,7 @@ export default function Explosion3({
     const ease = Power4.easeOut;
     const radiuses = RADIUSES.map(radius => (prevSize * radius) / 100);
     const center = prevSize / 2;
-    const timeline = new TimelineMax({
+    const timeline = gsap.timeline({
       delay: 0.35,
       onComplete: onComplete && onComplete.bind(null, 2),
       onStart: onStart && onStart.bind(null, 2),
@@ -54,7 +54,7 @@ export default function Explosion3({
       for (let j = 0; j < COUNT; j++) {
         const isLast = j >= COUNT - 1;
 
-        const timeline = new TimelineMax({
+        const timeline = gsap.timeline({
           delay: i * 0.5,
           onComplete: onComplete && isLast && onComplete.bind(null, i),
           onStart: onStart && isLast && onStart.bind(null, i),
@@ -112,7 +112,7 @@ export default function Explosion3({
 
     timelines.push(timeline);
 
-    TIME_LINE = new TimelineMax({
+    TIME_LINE = gsap.timeline({
       delay: prevDelay,
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay

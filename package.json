@@ -26,7 +26,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.16.0",
     "eslint-watch": "^6.0.1",
-    "gsap": "^2.0.1",
+    "gsap": "^3.0.4",
     "react": "^16.11.0",
     "react-dom": "^16.11.0"
   },

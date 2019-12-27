@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { TimelineMax, Power2 } from "gsap";
+import gsap, { Power2 } from "gsap";
 import Wave from "./Icons/Wave";
 
 const COUNT = 8;
@@ -33,7 +33,7 @@ export default function Exploion8({
     for (let i = 0; i < COUNT; i++) {
       const target = PATHS[i];
 
-      const timeline = new TimelineMax();
+      const timeline = gsap.timeline();
 
       timeline.set(target, { attr: { "stroke-dashoffset": 279 } });
       timeline.fromTo(
@@ -46,7 +46,7 @@ export default function Exploion8({
       timelines.push(timeline);
     }
 
-    TIMELINE = new TimelineMax({
+    TIMELINE = gsap.timeline({
       repeat: prevRepeat,
       delay: prevDelay,
       repeatDelay: prevRepeatDelay,

@@ -1,5 +1,5 @@
 import React, { useState, Fragment, useEffect, useCallback } from "react";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 import ZigZag from "./Icons/ZigZag";
 import Cross from "./Icons/Cross";
 import Circle from "./Icons/Circle";
@@ -39,7 +39,7 @@ export default function Explosion10({
     const tlgroup2 = [];
 
     for (let i = 0; i < 20; i++) {
-      const timeline = new TimelineMax();
+      const timeline = gsap.timeline();
 
       const zigzag = ZIGZAGS[i];
       const cross = CROSSES[i];
@@ -96,7 +96,7 @@ export default function Explosion10({
       tlgroup1.push(timeline);
 
       if (i < 2) {
-        const timeline = new TimelineMax({ delay: 0.5 * i });
+        const timeline = gsap.timeline({ delay: 0.5 * i });
         const circle = CIRCLES[i];
 
         timeline.fromTo(
@@ -117,7 +117,7 @@ export default function Explosion10({
       }
     }
 
-    TIMELINE = new TimelineMax({
+    TIMELINE = gsap.timeline({
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay,
       delay: prevDelay,

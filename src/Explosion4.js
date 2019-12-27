@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useEffect, useCallback } from "react";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 
 const TARGETS = [];
 const COUNTS = [7, 32];
@@ -25,12 +25,12 @@ export default function Explosion4({
   onStart,
   onRepeat
 }) {
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const circleStroke = Math.ceil((size * CIRCLE_STROKE) / 100);
+  const circleStroke = Math.ceil((prevSize * CIRCLE_STROKE) / 100);
   const center = prevSize / 2;
 
   const explode = useCallback(() => {
@@ -39,7 +39,7 @@ export default function Explosion4({
 
     const timelines = [];
 
-    TIME_LINE = new TimelineMax({
+    TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay,
       delay: prevDelay
@@ -50,7 +50,7 @@ export default function Explosion4({
 
       for (let j = 0; j < COUNTS[i]; j++) {
         const isLast = j >= COUNTS[i] - 1;
-        const timeline = new TimelineMax({
+        const timeline = gsap.timeline({
           delay: i >= 1 ? 0 : 0.15,
           onComplete: onComplete && isLast && onComplete.bind(null, i),
           onStart: onStart && isLast && onStart.bind(null, i),
@@ -86,7 +86,7 @@ export default function Explosion4({
         const circle = CIRCLES[i];
         const el = circle.el;
         const radius = (prevSize * circle.radius) / 100;
-        const timeline = new TimelineMax({
+        const timeline = gsap.timeline({
           delay: (i + 1) * 0.2,
           onComplete: onComplete && onComplete.bind(null, 2 + i),
           onStart: onStart && onStart.bind(null, 2 + i),
@@ -112,7 +112,7 @@ export default function Explosion4({
 
         timelines.push(timeline);
       }
-      TIME_LINE.add(timelines);
+      TIME_LINE.add(timelines, 0);
     }
   }, [
     prevSize,
@@ -134,13 +134,9 @@ export default function Explosion4({
   }, [size, delay, repeatDelay, repeat]);
 
   useEffect(() => {
+    if (TIME_LINE) TIME_LINE.kill();
     explode();
   }, [explode]);
-
-  useEffect(() => {
-    TIME_LINE.kill();
-    explode();
-  });
 
   return (
     <svg style={style} width={prevSize} height={prevSize}>

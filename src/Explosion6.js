@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, Fragment } from "react";
 import Shape from "./Icons/Shape";
 import Circle from "./Icons/Circle";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power1, Power4 } from "gsap";
 
 const SHAPES = [];
 const CIRCLES = [];
@@ -42,16 +42,8 @@ export default function Explosion6({
     for (let i = 0; i < CIRCLES.length; i++) {
       const circle = CIRCLES[i];
       const origin = ORIGINS[i];
-      const timeline = new TimelineMax({ delay: (i + 1) / 5 });
+      const timeline = gsap.timeline({ delay: (i + 1) / 5 });
 
-      timeline.set(circle, {
-        rotation: 0,
-        opacity: 1,
-        scale: 0.3,
-        transformOrigin: "center",
-        x: 0,
-        y: 0
-      });
       timeline.fromTo(
         circle,
         1.5,
@@ -70,7 +62,7 @@ export default function Explosion6({
           ease
         }
       );
-      timeline.to(circle, 0.5, { opacity: 0 }, "-=0.8");
+      timeline.fromTo(circle, 0.5, { opacity: 1 }, { opacity: 0 }, "-=0.8");
 
       timelines.push(timeline);
     }
@@ -86,16 +78,20 @@ export default function Explosion6({
       const shape = SHAPES[i];
       const degree = i % 2 == 0 ? DEGREE + RATIO : -(DEGREE - RATIO);
       const rotation = degree * ((i + 1) / 4);
-      const timeline = new TimelineMax();
+      const timeline = gsap.timeline();
 
       timeline.set(shape, { x: "-45%", y: "-50%" });
-      timeline.from(shape, 1.5, {
-        scale: 0,
-        rotation: 0,
-        transformOrigin: "45% 50%",
-        ease
-      });
-      timeline.to(shape, 0.9, { scale: 1, rotation, ease }, "-=1.5");
+      timeline.fromTo(
+        shape,
+        0.9,
+        {
+          scale: 0,
+          rotation: 0,
+          transformOrigin: "45% 50%"
+        },
+        { scale: 1, rotation, ease }
+      );
+      timeline.to(shape, 1, { scale: 0.9, ease: Power1.easeIn });
       timeline.to(shape, 0.5, { scale: 0, ease });
 
       timelines.push(timeline);
@@ -116,7 +112,7 @@ export default function Explosion6({
   }, [size, delay, repeatDelay, repeat]);
 
   useEffect(() => {
-    TIME_LINE = new TimelineMax({
+    TIME_LINE = gsap.timeline({
       delay: prevDelay,
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay,
@@ -126,7 +122,7 @@ export default function Explosion6({
     });
 
     TIME_LINE.add(animateShape(), 0);
-    TIME_LINE.add(animateBubbles(), "-=2");
+    TIME_LINE.add(animateBubbles(), "-=2.3");
   }, [
     prevDelay,
     prevSize,
@@ -167,17 +163,18 @@ export default function Explosion6({
             />
             {i <= 2 && (
               <Circle
-                innerRef={el => (CIRCLES[i] = el)}
+                ref={el => (CIRCLES[i] = el)}
                 stroke={color}
                 strokeWidth={strokeWidth}
+                width={`${CIRCLE_SIZE}%`}
+                height={`${CIRCLE_SIZE}%`}
+                radius="24"
                 style={{
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%) scale(0)",
+                  transform: "translate(-50%, -50%)",
                   transformOrigin: "50% 50%",
-                  position: "absolute",
-                  width: `${CIRCLE_SIZE}%`,
-                  height: `${CIRCLE_SIZE}%`
+                  position: "absolute"
                 }}
               />
             )}

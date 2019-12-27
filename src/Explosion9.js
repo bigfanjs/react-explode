@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { TimelineMax, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 
 const LINES = [];
 const STROKE_WIDTH = 0.7;
@@ -40,7 +40,7 @@ export default function Explosion9({
     const offsetY = Math.sin(Math.PI / 10);
 
     for (let i = 0; i < LINES.length; i++) {
-      const timeline = new TimelineMax({
+      const timeline = gsap.timeline({
         delay: Math.floor(i / COUNT) * 0.2
       });
       const line = LINES[i];
@@ -80,7 +80,7 @@ export default function Explosion9({
       tlgroup1.push(timeline);
     }
 
-    TIMELINE = new TimelineMax({
+    TIMELINE = gsap.timeline({
       repeat: prevRepeat,
       repeatDelay: prevRepeatDelay,
       delay: prevDelay,
