@@ -8,3 +8,4 @@ export { default as Explosion7 } from "./Explosion7";
 export { default as Explosion8 } from "./Explosion8";
 export { default as Explosion9 } from "./Explosion9";
 export { default as Explosion10 } from "./Explosion10";
+export { default as Explosion11 } from "./Explosion11";
