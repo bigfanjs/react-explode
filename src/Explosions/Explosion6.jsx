@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from "react";
-import Shape from "./Icons/Shape";
-import Circle from "./Icons/Circle";
+import Shape from "../Icons/Shape";
+import Circle from "../Icons/Circle";
 import gsap, { Power1, Power4 } from "gsap";
 
 const SHAPES = [];

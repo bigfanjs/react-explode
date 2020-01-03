@@ -1,8 +1,8 @@
 import React, { useState, Fragment, useEffect, useCallback } from "react";
 import gsap, { Power4 } from "gsap";
-import ZigZag from "./Icons/ZigZag";
-import Cross from "./Icons/Cross";
-import Circle from "./Icons/Circle";
+import ZigZag from "../Icons/ZigZag";
+import Cross from "../Icons/Cross";
+import Circle from "../Icons/Circle";
 
 const ZIGZAGS = [];
 const CROSSES = [];

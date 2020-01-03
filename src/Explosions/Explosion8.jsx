@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import gsap, { Power2 } from "gsap";
-import Wave from "./Icons/Wave";
+import Wave from "../Icons/Wave";
 
 const COUNT = 8;
 const PATHS = [];
