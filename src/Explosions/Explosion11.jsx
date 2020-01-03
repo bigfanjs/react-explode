@@ -6,8 +6,8 @@ import React, {
   useRef
 } from "react";
 import gsap, { Linear, Power4 } from "gsap";
-import Square from "./Icons/Square";
-import Triangle from "./Icons/Triangle";
+import Square from "../Icons/Square";
+import Triangle from "../Icons/Triangle";
 
 const STROKE_WIDTH = 0.9;
 const POINTS = "0,0 60,30 0,60 0,30";
