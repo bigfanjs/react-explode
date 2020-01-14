@@ -8,6 +8,7 @@ function Circle(
     strokeWidth,
     radius = 5,
     color = "#fff",
+    strokeDasharray,
     style
   },
   ref
@@ -28,6 +29,7 @@ function Circle(
         r={radius}
         stroke={color}
         strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
         fill="none"
       />
     </svg>

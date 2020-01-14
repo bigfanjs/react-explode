@@ -6,7 +6,7 @@ const STROKE_WIDTH = 2;
 
 let TIME_LINE = null;
 
-export default function Explosion2({
+export default function Explosion12({
   size,
   delay,
   repeatDelay,
