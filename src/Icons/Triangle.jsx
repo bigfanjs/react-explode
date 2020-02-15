@@ -4,10 +4,11 @@ function Triangle(
   {
     width = 10,
     height = 10,
-    strokeWidth = 0,
+    strokeWidth = 1,
     color = "#fff",
-    points,
+    points = "0,0 60,30 0,60 0,30",
     polygonRef,
+    border = false,
     style = {}
   },
   ref
@@ -23,7 +24,8 @@ function Triangle(
       <polygon
         ref={polygonRef}
         points={points}
-        fill={color}
+        fill={border ? "none" : color}
+        stroke={border ? color : "none"}
         strokeWidth={strokeWidth}
       />
     </svg>

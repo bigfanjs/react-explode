@@ -5,7 +5,7 @@ function Square(
     width = 10,
     height = 10,
     strokeWidth = 1,
-    strokeDasharray = 40,
+    strokeDasharray = 0,
     strokeDashoffset = 0,
     color = "#fff",
     rectRef,
