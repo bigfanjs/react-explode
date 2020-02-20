@@ -6,7 +6,7 @@ function Circle(
     height = 52,
     circleRef,
     strokeWidth,
-    radius = 5,
+    radius = "45%",
     color = "#fff",
     strokeDasharray,
     strokeLinecap,
