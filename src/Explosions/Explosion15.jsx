@@ -275,7 +275,7 @@ export default function Explosion13({
       {Array.from(Array(7)).map((_, i) => (
         <CircleIcon
           key={i}
-          circleRef={circleRefs.current[i]}
+          shapeRef={circleRefs.current[i]}
           radius={5 + 2 * (i === 0 ? i + 1 : i)}
           fill="none"
           color={i > 0 ? " #2ab7ca" : "#fe4a49"}

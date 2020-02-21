@@ -4,7 +4,7 @@ function Circle(
   {
     width = 52,
     height = 52,
-    circleRef,
+    shapeRef,
     strokeWidth,
     radius = "45%",
     color = "#fff",
@@ -24,7 +24,7 @@ function Circle(
       ref={ref}
     >
       <circle
-        ref={circleRef}
+        ref={shapeRef}
         cx="26"
         cy="26"
         r={radius}

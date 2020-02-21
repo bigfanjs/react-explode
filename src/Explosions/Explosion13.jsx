@@ -172,7 +172,7 @@ export default function Explosion13({
             radius={25}
             strokeWidth={1}
             color="#32a885"
-            circleRef={circlesRefs.current[i]}
+            shapeRef={circlesRefs.current[i]}
             style={{
               position: "absolute",
               left: center - circlesRadius / 2 + x * ((dist / 2) * 0.9),
@@ -207,7 +207,7 @@ export default function Explosion13({
         radius={25}
         strokeWidth={1}
         color="#1da372"
-        circleRef={circleRef}
+        shapeRef={circleRef}
         strokeDasharray="0 157"
         style={{
           position: "absolute",

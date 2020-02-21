@@ -188,7 +188,7 @@ export default function Explosion10({
               color="rgb(255, 208, 3)"
               strokeWidth={strokeWidth}
               style={{ position: "absolute", width: "100%", height: "100%" }}
-              circleRef={el => (CIRCLES[i] = el)}
+              shapeRef={el => (CIRCLES[i] = el)}
             />
           )}
         </Fragment>

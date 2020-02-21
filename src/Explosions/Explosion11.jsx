@@ -234,7 +234,7 @@ export default function Explosion11({
             key={idx}
             points={POINTS}
             ref={triangleRefs.current[idx]}
-            polygonRef={polygonRefs.current[idx]}
+            shapeRef={polygonRefs.current[idx]}
             color="#FF4D4D"
             style={{
               position: "absolute",

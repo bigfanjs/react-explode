@@ -8,7 +8,7 @@ function Square(
     strokeDasharray = 0,
     strokeDashoffset = 0,
     color = "#fff",
-    rectRef,
+    shapeRef,
     style = {}
   },
   ref
@@ -25,7 +25,7 @@ function Square(
         strokeDasharray={strokeDasharray}
         strokeDashoffset={strokeDashoffset}
         fill="none"
-        ref={rectRef}
+        ref={shapeRef}
       />
     </svg>
   );

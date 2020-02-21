@@ -7,7 +7,7 @@ function Triangle(
     strokeWidth = 1,
     color = "#fff",
     points = "0,0 60,30 0,60 0,30",
-    polygonRef,
+    shapeRef,
     border = false,
     style = {}
   },
@@ -22,7 +22,7 @@ function Triangle(
       style={style}
     >
       <polygon
-        ref={polygonRef}
+        ref={shapeRef}
         points={points}
         fill={border ? "none" : color}
         stroke={border ? color : "none"}

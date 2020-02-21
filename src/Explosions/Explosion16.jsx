@@ -5,7 +5,7 @@ import React, {
   useRef,
   createRef
 } from "react";
-import gsap, { Power4 } from "gsap";
+import gsap, { Power4, Expo } from "gsap";
 import CurveLine from "../Icons/CurveLine";
 import Circle from "../Icons/Circle";
 import Square from "../Icons/Square";
@@ -25,26 +25,27 @@ export default function Explosion16({
   repeatDelay,
   repeat,
   style,
-  color = "white",
   onComplete,
   onStart,
   onRepeat
 }) {
   const curveLiveRef = useRef();
   const circleRef = useRef();
-  const shapesRefs = useRef([...Array(4)].map(() => createRef()));
-  const squareRefs = useRef([...Array(3)].map(() => createRef()));
+  const shapesRefs = useRef(
+    [...Array(4)].map(() => ({ outer: createRef(), inner: createRef() }))
+  );
+  const squareRefs = useRef(
+    [...Array(3)].map(() => ({ inner: createRef(), outer: createRef() }))
+  );
 
   const [prevSize, setPrevSize] = useState(400);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const explode = useCallback(() => {
-    const shapesTimlines = [];
-    const squaresTimlines = [];
+  // animate curve line:
+  const animateCurveLine = useCallback(() => {
     const timeline = gsap.timeline();
-    const strokeWidth = (prevSize * STROKE_WIDTH) / 100;
 
     timeline.set(curveLiveRef.current, {
       attr: {
@@ -53,9 +54,11 @@ export default function Explosion16({
         "stroke-width": 0
       }
     });
+
     timeline.to(curveLiveRef.current, 0.3, {
       attr: { "stroke-width": 1 }
     });
+
     timeline.to(
       curveLiveRef.current,
       {
@@ -76,6 +79,7 @@ export default function Explosion16({
       },
       "-=0.3"
     );
+
     timeline.to(
       curveLiveRef.current,
       0.6,
@@ -83,11 +87,17 @@ export default function Explosion16({
         attr: { "stroke-width": 0 },
         ease: Power4.easeInOut
       },
-      "-=0.4"
+      "-=0.5"
     );
 
-    // animate shapes
-    shapesRefs.current.forEach((ref, i) => {
+    return timeline;
+  }, []);
+
+  // animate shapes:
+  const animateShapes = useCallback(() => {
+    const timelines = [];
+
+    shapesRefs.current.forEach(({ outer, inner }, i) => {
       const timeline = gsap.timeline({ delay: i * 0.08 });
       const cos = Math.cos((Math.PI / 2) * i);
       const sin = Math.sin((Math.PI / 2) * i);
@@ -95,48 +105,7 @@ export default function Explosion16({
       const radiuses = RADIUSES.map(radius => (prevSize * radius) / 100);
 
       timeline.fromTo(
-        ref.current,
-        0.5,
-        { x: -size, y: -size, scale: 0 },
-        {
-          x: `${-size + radiuses[i] * cos}`,
-          y: `${-size + radiuses[i] * sin}`,
-          scale: 1,
-          ease: Power4.easeOut
-        }
-      );
-      timeline.fromTo(
-        ref.current,
-        0.5,
-        { rotation: 0 },
-        {
-          rotation: 200,
-          transformOrigin: "50% 50%",
-          ease: Power4.easeOut
-        },
-        "-=0.4"
-      );
-      timeline.fromTo(
-        ref.current,
-        0.4,
-        { opacity: 1 },
-        { opacity: 0, ease: Power4.easeOut },
-        "-=0.4"
-      );
-
-      shapesTimlines.push(timeline);
-    });
-
-    // animate sqaures
-    squareRefs.current.forEach((ref, i) => {
-      const timeline = gsap.timeline({ delay: i * 0.05 });
-      const cos = Math.cos(((2 * Math.PI) / 3) * i);
-      const sin = Math.sin(((2 * Math.PI) / 3) * i);
-      const size = ((SHAPE_SIZE / 2) * prevSize) / 100;
-      const radiuses = RADIUSES.map(radius => (prevSize * radius) / 100);
-
-      timeline.fromTo(
-        ref.current,
+        outer.current,
         0.7,
         { x: -size, y: -size, scale: 0 },
         {
@@ -147,33 +116,100 @@ export default function Explosion16({
         }
       );
       timeline.fromTo(
-        ref.current,
+        outer.current,
+        0.7,
+        { rotation: 0 },
+        {
+          rotation: 200 * (i % 2 ? 1 : -1),
+          transformOrigin: "50% 50%",
+          ease: Expo.easeOut
+        },
+        "-=0.6"
+      );
+      timeline.fromTo(
+        inner.current,
+        0.5,
+        { attr: { "stroke-width": 4 } },
+        { attr: { "stroke-width": 0 }, ease: Power4.easeOut },
+        "-=0.5"
+      );
+      timeline.fromTo(
+        inner.current,
+        0.3,
+        { opacity: 1 },
+        { opacity: 0, ease: Power4.easeOut },
+        "-=0.1"
+      );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, [prevSize]);
+
+  // animate sqaures
+  const animateSquares = useCallback(() => {
+    const timelines = [];
+
+    squareRefs.current.forEach(({ inner, outer }, i) => {
+      const timeline = gsap.timeline({ delay: i * 0.05 });
+      const cos = Math.cos(((2 * Math.PI) / 3) * i);
+      const sin = Math.sin(((2 * Math.PI) / 3) * i);
+      const size = ((SHAPE_SIZE / 2) * prevSize) / 100;
+      const radiuses = RADIUSES.map(radius => (prevSize * radius) / 100);
+
+      timeline.fromTo(
+        outer.current,
+        0.7,
+        { x: -size, y: -size, scale: 0 },
+        {
+          x: `${-size + radiuses[i] * cos}`,
+          y: `${-size + radiuses[i] * sin}`,
+          scale: 1,
+          ease: Power4.easeOut
+        }
+      );
+      timeline.fromTo(
+        outer.current,
         0.5,
         { rotation: 0 },
         {
-          rotation: 200,
+          rotation: 200 * (i % 2 ? 1 : -1),
           transformOrigin: "50% 50%",
           ease: Power4.easeOut
         },
         "-=0.6"
       );
       timeline.fromTo(
-        ref.current,
-        0.3,
-        { opacity: 1 },
-        { opacity: 0, ease: Power4.easeOut },
+        inner.current,
+        0.5,
+        { attr: { "stroke-width": 4 } },
+        { attr: { "stroke-width": 0 }, ease: Power4.easeOut },
         "-=0.4"
       );
+      //   timeline.fromTo(
+      //     ref.current,
+      //     0.3,
+      //     { opacity: 1 },
+      //     { opacity: 0, ease: Power4.easeOut },
+      //     "-=0.4"
+      //   );
 
-      squaresTimlines.push(timeline);
+      timelines.push(timeline);
     });
 
-    const circleTimeline = gsap.timeline();
+    return timelines;
+  }, [prevSize]);
 
-    circleTimeline.set(circleRef.current, {
-      attr: { "stroke-width": 15 }
+  // animate circle
+  const animateCircle = useCallback(() => {
+    const timeline = gsap.timeline();
+    const strokeWidth = (prevSize * STROKE_WIDTH) / 100;
+
+    timeline.set(circleRef.current, {
+      attr: { "stroke-width": 15, opacity: 1 }
     });
-    circleTimeline.fromTo(
+    timeline.fromTo(
       circleRef.current,
       0.5,
       { attr: { r: 0, "stroke-width": 15 } },
@@ -182,7 +218,7 @@ export default function Explosion16({
         ease: Power4.easeOut
       }
     );
-    circleTimeline.to(
+    timeline.to(
       circleRef.current,
       0.5,
       {
@@ -191,14 +227,22 @@ export default function Explosion16({
       },
       "-=0.5"
     );
-    circleTimeline.to(
+    timeline.fromTo(
       circleRef.current,
       0.5,
-      {
-        opacity: 0
-      },
+      { opacity: 1 },
+      { opacity: 0 },
       "-=0.4"
     );
+
+    return timeline;
+  }, [prevSize]);
+
+  const explode = useCallback(() => {
+    const curveLineTL = animateCurveLine();
+    const shapesTimlines = animateShapes();
+    const squaresTimlines = animateSquares();
+    const circleTimeline = animateCircle();
 
     TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
@@ -209,8 +253,8 @@ export default function Explosion16({
       onRepeat
     });
 
-    TIME_LINE.add(timeline);
-    TIME_LINE.add(shapesTimlines, 0.55);
+    TIME_LINE.add(curveLineTL);
+    TIME_LINE.add(shapesTimlines, 0.6);
     TIME_LINE.add(squaresTimlines, 0.9);
     TIME_LINE.add(circleTimeline, 1.2);
   }, [
@@ -220,7 +264,10 @@ export default function Explosion16({
     onComplete,
     onStart,
     onRepeat,
-    prevSize
+    animateShapes,
+    animateCurveLine,
+    animateCircle,
+    animateSquares
   ]);
 
   useEffect(() => {
@@ -235,8 +282,6 @@ export default function Explosion16({
     setPrevRepeat(repeat);
   }, [size, delay, repeatDelay, repeat]);
 
-  // const circlesRadius = (CIRCLES_RADIUS * prevSize) / 100;
-
   return (
     <div style={{ width: size, height: size, ...style }}>
       <CurveLine
@@ -250,7 +295,8 @@ export default function Explosion16({
       {shapes.map((Shape, i) => (
         <Shape
           key={i}
-          ref={shapesRefs.current[i]}
+          ref={shapesRefs.current[i].outer}
+          shapeRef={shapesRefs.current[i].inner}
           width={`${SHAPE_SIZE - SHAPE_SIZE * i * 0.1}%`}
           height={`${SHAPE_SIZE - SHAPE_SIZE * i * 0.1}%`}
           strokeWidth={4}
@@ -264,10 +310,11 @@ export default function Explosion16({
           border
         />
       ))}
-      {squareRefs.current.map((ref, i) => (
+      {squareRefs.current.map(({ inner, outer }, i) => (
         <Square
           key={i}
-          ref={ref}
+          ref={outer}
+          shapeRef={inner}
           width={`${SHAPE_SIZE - SHAPE_SIZE * i * 0.1}%`}
           height={`${SHAPE_SIZE - SHAPE_SIZE * i * 0.1}%`}
           strokeWidth={4}
@@ -281,11 +328,12 @@ export default function Explosion16({
         />
       ))}
       <Circle
-        circleRef={circleRef}
+        shapeRef={circleRef}
         width={`${CIRCLE_SIZE}%`}
         height={`${CIRCLE_SIZE}%`}
         radius={0}
         strokeWidth={2.5}
+        color="#2ab7ca"
         style={{
           position: "absolute",
           left: "99%",
