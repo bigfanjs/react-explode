@@ -187,13 +187,13 @@ export default function Explosion16({
         { attr: { "stroke-width": 0 }, ease: Power4.easeOut },
         "-=0.4"
       );
-      //   timeline.fromTo(
-      //     ref.current,
-      //     0.3,
-      //     { opacity: 1 },
-      //     { opacity: 0, ease: Power4.easeOut },
-      //     "-=0.4"
-      //   );
+      timeline.fromTo(
+        outer.current,
+        0.3,
+        { opacity: 1 },
+        { opacity: 0, ease: Power4.easeOut },
+        "-=0.4"
+      );
 
       timelines.push(timeline);
     });
