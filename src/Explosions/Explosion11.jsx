@@ -214,7 +214,7 @@ export default function Explosion11({
   return (
     <div style={{ width: prevSize, height: prevSize, ...style }}>
       <Square
-        rectRef={squareRef}
+        shapeRef={squareRef}
         width={`${SQUARE_SIZE}%`}
         height={`${SQUARE_SIZE}%`}
         strokeWidth={strokeWidth}
