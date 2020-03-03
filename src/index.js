@@ -16,3 +16,4 @@ export { default as Explosion15 } from "./Explosions/Explosion15";
 export { default as Explosion16 } from "./Explosions/Explosion16";
 export { default as Explosion17 } from "./Explosions/Explosion17";
 export { default as Explosion18 } from "./Explosions/Explosion18";
+export { default as Explosion19 } from "./Explosions/Explosion19";
