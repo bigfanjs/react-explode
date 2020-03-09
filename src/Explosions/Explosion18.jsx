@@ -309,7 +309,7 @@ export default function Explosion18({
       {Array.from(Array(4)).map((_, i) =>
         Array.from(Array(2)).map((_, j) => (
           <SineWave
-            key={i}
+            key={j + 2 * i}
             width={j % 2 ? 140 : 170}
             strokeWidth={SineWaveStrokeWidths[j % 2]}
             shapeRef={sinewavesRefs.current[j + 2 * i]}
