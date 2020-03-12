@@ -184,14 +184,14 @@ export default function Explosion20({
                 "stroke-dasharray": `100 ${lineLength - 100}`,
                 "stroke-dashoffset": -20
               },
-              duration: 0.4
+              duration: 0.5
             },
             {
               attr: {
                 "stroke-dasharray": `0 ${lineLength}`,
                 "stroke-dashoffset": lineLength * -1
               },
-              duration: 0.6
+              duration: 0.7
             }
           ],
           ease: Power4.easeInOut

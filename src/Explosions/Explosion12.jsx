@@ -16,7 +16,6 @@ const CIRCLE_SIZE = 40;
 const ZIGZAG_SIZE = 80;
 const ZIGZAG_STROKE_WIDTH = 0.24;
 const CIRCLE_STROKE_WIDTH = 0.35;
-const SINE_WAVE_STROKE_WIDTH = 0.25;
 const HEART_LINE_SIZE = 50;
 const HEART_LINE_STROKE_WIDTHS = [0.25, 0.1];
 let TIME_LINE;
@@ -43,10 +42,6 @@ export default function Explosion21({
 
   const zigzagStrokeWidth = useMemo(
     () => (prevSize * ZIGZAG_STROKE_WIDTH) / 100,
-    [prevSize]
-  );
-  const sineWaveStrokeWidth = useMemo(
-    () => (prevSize * SINE_WAVE_STROKE_WIDTH) / 100,
     [prevSize]
   );
   const HeartLineStrokeWidths = useMemo(
@@ -120,7 +115,11 @@ export default function Explosion21({
       if (i === 1) {
         const timeline = gsap.timeline();
 
-        timeline.set(ref.current, { scale: 0, attr: { "stroke-width": 20 } });
+        timeline.set(ref.current, {
+          scale: 0,
+          opacity: 1,
+          attr: { "stroke-width": 20 }
+        });
         timeline.fromTo(
           ref.current,
           0.7,
@@ -180,60 +179,41 @@ export default function Explosion21({
   const animateSineWaves = useCallback(() => {
     const timelines = [];
 
-    waveRefs.current.forEach((ref, i) => {
+    waveRefs.current.forEach(ref => {
       const timeline = gsap.timeline();
 
       timeline.set(ref.current, {
         attr: {
           "stroke-dasharray": `0 ${sineWaveLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
+          "stroke-dashoffset": 0
         }
       });
 
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": sineWaveStrokeWidth }
-      });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `100 ${sineWaveLength - 100}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.4
+      timeline.to(ref.current, {
+        keyframes: [
+          {
+            attr: {
+              "stroke-dasharray": `100 ${sineWaveLength - 100}`,
+              "stroke-dashoffset": -20
             },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${sineWaveLength}`,
-                "stroke-dashoffset": sineWaveLength * -1
-              },
-              duration: 0.6
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.3"
-      );
+            duration: 0.4
+          },
+          {
+            attr: {
+              "stroke-dasharray": `0 ${sineWaveLength}`,
+              "stroke-dashoffset": sineWaveLength * -1
+            },
+            duration: 0.6
+          }
+        ],
+        ease: Power4.easeInOut
+      });
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [sineWaveStrokeWidth]);
+  }, []);
 
   const animateHeartLines = useCallback(() => {
     const timelines = [];
@@ -244,54 +224,40 @@ export default function Explosion21({
       timeline.set(ref.current, {
         attr: {
           "stroke-dasharray": `0 ${heartLineLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
+          "stroke-dashoffset": 0
         }
       });
 
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": HeartLineStrokeWidths[i % 2] }
+      timeline.fromTo(
+        ref.current,
+        0.6,
+        {
+          attr: {
+            "stroke-dasharray": `0 ${heartLineLength}`,
+            "stroke-dashoffset": 0
+          }
+        },
+        {
+          attr: {
+            "stroke-dasharray": `80 ${heartLineLength - 80}`,
+            "stroke-dashoffset": -20
+          },
+          ease: Power4.easeIn
+        }
+      );
+      timeline.to(ref.current, 0.5, {
+        attr: {
+          "stroke-dasharray": `0 ${heartLineLength}`,
+          "stroke-dashoffset": heartLineLength * -1
+        },
+        ease: Power4.easeOut
       });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `120 ${heartLineLength - 120}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.5
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${heartLineLength}`,
-                "stroke-dashoffset": heartLineLength * -1
-              },
-              duration: 0.6
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.4"
-      );
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [HeartLineStrokeWidths]);
+  }, []);
 
   const explode = useCallback(() => {
     const zizagTimelines = animateZigzag();
@@ -300,7 +266,7 @@ export default function Explosion21({
     const heartLinesTimelines = animateHeartLines();
 
     TIME_LINE = gsap.timeline({
-      repeat: 500,
+      repeat: prevRepeat,
       delay: prevDelay,
       repeatDelay: prevRepeatDelay,
       onStart,
@@ -337,7 +303,7 @@ export default function Explosion21({
     setPrevRepeat(repeat);
   }, [size, delay, repeatDelay, repeat]);
 
-  const circleSize = useMemo(() => (CIRCLE_SIZE * 100) / prevSize, [prevSize]);
+  // const circleSize = useMemo(() => (CIRCLE_SIZE * 100) / prevSize, [prevSize]);
 
   return (
     <div
@@ -409,7 +375,7 @@ export default function Explosion21({
           radius="15%"
           width={prevSize}
           height={prevSize}
-          color="#2ab7ca"
+          color={["#2ab7ca", "#fe4a49"][i]}
           style={{
             position: "absolute",
             top: "50%",

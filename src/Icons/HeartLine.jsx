@@ -1,6 +1,6 @@
 import React from "react";
 
-export const length = 182.9;
+export const length = 183;
 
 export default function HeartLine({
   width = 60,
