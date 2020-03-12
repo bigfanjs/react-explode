@@ -1,67 +1,328 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  createRef,
+  useMemo
+} from "react";
 import gsap, { Power4 } from "gsap";
+import ZigzagSine, { length as zigzagSineLength } from "../Icons/ZigzagSine";
+import HeartLine, { length as heartLineLength } from "../Icons/HeartLine";
+import Circle from "../Icons/Circle";
+import SineWave, { length as sineWaveLength } from "../Icons/SineWave";
 
-const RADIUS = 45;
-const STROKE_WIDTH = 2;
+const CIRCLE_SIZE = 40;
+const ZIGZAG_SIZE = 80;
+const ZIGZAG_STROKE_WIDTH = 0.24;
+const CIRCLE_STROKE_WIDTH = 0.35;
+const SINE_WAVE_STROKE_WIDTH = 0.25;
+const HEART_LINE_SIZE = 50;
+const HEART_LINE_STROKE_WIDTHS = [0.25, 0.1];
+let TIME_LINE;
 
-let TIME_LINE = null;
-
-export default function Explosion12({
+export default function Explosion21({
   size,
   delay,
   repeatDelay,
   repeat,
   style,
-  color = "white",
   onComplete,
   onStart,
   onRepeat
 }) {
+  const circleRefs = useRef([...Array(2)].map(() => createRef()));
+  const waveRefs = useRef([...Array(4)].map(() => createRef()));
+  const zigzagRefs = useRef([...Array(3)].map(() => createRef()));
+  const heartLineRefs = useRef([...Array(4)].map(() => createRef()));
+
   const [prevSize, setPrevSize] = useState(400);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
-  const circleRef = useRef();
 
-  const center = size / 2;
-  const strokeWidth = Math.ceil((size * STROKE_WIDTH) / 100);
+  const zigzagStrokeWidth = useMemo(
+    () => (prevSize * ZIGZAG_STROKE_WIDTH) / 100,
+    [prevSize]
+  );
+  const sineWaveStrokeWidth = useMemo(
+    () => (prevSize * SINE_WAVE_STROKE_WIDTH) / 100,
+    [prevSize]
+  );
+  const HeartLineStrokeWidths = useMemo(
+    () => HEART_LINE_STROKE_WIDTHS.map(sw => (prevSize * sw) / 100),
+    [prevSize]
+  );
 
-  const explode = useCallback(() => {
-    const ease = Power4.easeOut;
-    const radius = (prevSize * RADIUS) / 100;
-    const strokeWidth = Math.ceil((prevSize * STROKE_WIDTH) / 100);
+  const animateZigzag = useCallback(() => {
+    const timelines = [];
 
-    TIME_LINE = gsap.timeline({
-      repeat: prevRepeat,
-      repeatDelay: prevRepeatDelay,
-      delay: prevDelay,
-      onStart: onStart,
-      onComplete: onComplete,
-      onRepeat: onRepeat
+    zigzagRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline({ delay: 0.04 * i });
+
+      timeline.set(ref.current, {
+        attr: {
+          "stroke-dasharray": `0 ${zigzagSineLength}`,
+          "stroke-dashoffset": 0,
+          "stroke-width": 0
+        }
+      });
+
+      timeline.to(ref.current, 0.2, {
+        attr: { "stroke-width": zigzagStrokeWidth }
+      });
+
+      timeline.to(
+        ref.current,
+        {
+          keyframes: [
+            {
+              attr: {
+                "stroke-dasharray": `50 ${zigzagSineLength - 50}`,
+                "stroke-dashoffset": -20
+              },
+              duration: 0.4
+            },
+            {
+              attr: {
+                "stroke-dasharray": `0 ${zigzagSineLength}`,
+                "stroke-dashoffset": zigzagSineLength * -1
+              },
+              duration: 0.6
+            }
+          ],
+          ease: Power4.easeInOut
+        },
+        "-=0.2"
+      );
+
+      timeline.to(
+        ref.current,
+        0.3,
+        {
+          attr: { "stroke-width": 0 },
+          ease: Power4.easeInOut
+        },
+        "-=0.3"
+      );
+
+      timelines.push(timeline);
     });
 
-    TIME_LINE.fromTo(
-      circleRef.current,
-      0.8,
-      { attr: { r: 0 } },
-      { attr: { r: radius }, ease }
-    )
-      .fromTo(
-        circleRef.current,
-        0.8,
-        { attr: { "stroke-width": strokeWidth }, opacity: 1, ease },
-        { attr: { "stroke-width": 0 }, opacity: 0, ease },
+    return timelines;
+  }, [zigzagStrokeWidth]);
+
+  const animateCircle = useCallback(() => {
+    const timelines = [];
+    const strokeWidth = (prevSize * CIRCLE_STROKE_WIDTH) / 100;
+
+    circleRefs.current.forEach((ref, i) => {
+      if (i === 1) {
+        const timeline = gsap.timeline();
+
+        timeline.set(ref.current, { scale: 0, attr: { "stroke-width": 20 } });
+        timeline.fromTo(
+          ref.current,
+          0.7,
+          { scale: 0, transformOrigin: "center", attr: { "stroke-width": 20 } },
+          {
+            scale: 1,
+            attr: { "stroke-width": strokeWidth },
+            ease: Power4.easeInOut
+          }
+        );
+        timeline.to(
+          ref.current,
+          0.7,
+          {
+            scale: 0.7,
+            transformOrigin: "center",
+            attr: { "stroke-width": 0 },
+            opacity: 0,
+            ease: Power4.easeInOut
+          },
+          "-=0.1"
+        );
+
+        timelines.push(timeline);
+      } else {
+        const timeline = gsap.timeline({ delay: 0.45 });
+
+        timeline.set(ref.current, { attr: { "stroke-width": 20 }, scale: 0 });
+        timeline.set(ref.current, { opacity: 1 });
+        timeline.fromTo(
+          ref.current,
+          0.8,
+          { scale: 0, transformOrigin: "center" },
+          { scale: 0.8, ease: Power4.easeInOut }
+        );
+        timeline.to(
+          ref.current,
+          1,
+          { scale: 1.1, attr: { "stroke-width": 0 }, ease: Power4.easeInOut },
+          "-=0.8"
+        );
+        timeline.fromTo(
+          ref.current,
+          0.3,
+          { opacity: 1 },
+          { opacity: 0, ease: Power4.easeInOut },
+          "-=0.3"
+        );
+
+        timelines.push(timeline);
+      }
+    });
+
+    return timelines;
+  }, [prevSize]);
+
+  const animateSineWaves = useCallback(() => {
+    const timelines = [];
+
+    waveRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline();
+
+      timeline.set(ref.current, {
+        attr: {
+          "stroke-dasharray": `0 ${sineWaveLength}`,
+          "stroke-dashoffset": 0,
+          "stroke-width": 0
+        }
+      });
+
+      timeline.to(ref.current, 0.2, {
+        attr: { "stroke-width": sineWaveStrokeWidth }
+      });
+
+      timeline.to(
+        ref.current,
+        {
+          keyframes: [
+            {
+              attr: {
+                "stroke-dasharray": `100 ${sineWaveLength - 100}`,
+                "stroke-dashoffset": -20
+              },
+              duration: 0.4
+            },
+            {
+              attr: {
+                "stroke-dasharray": `0 ${sineWaveLength}`,
+                "stroke-dashoffset": sineWaveLength * -1
+              },
+              duration: 0.6
+            }
+          ],
+          ease: Power4.easeInOut
+        },
+        "-=0.2"
+      );
+
+      timeline.to(
+        ref.current,
+        0.3,
+        {
+          attr: { "stroke-width": 0 },
+          ease: Power4.easeInOut
+        },
+        "-=0.3"
+      );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, [sineWaveStrokeWidth]);
+
+  const animateHeartLines = useCallback(() => {
+    const timelines = [];
+
+    heartLineRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline({ delay: (i % 2) * 0.05 });
+
+      timeline.set(ref.current, {
+        attr: {
+          "stroke-dasharray": `0 ${heartLineLength}`,
+          "stroke-dashoffset": 0,
+          "stroke-width": 0
+        }
+      });
+
+      timeline.to(ref.current, 0.2, {
+        attr: { "stroke-width": HeartLineStrokeWidths[i % 2] }
+      });
+
+      timeline.to(
+        ref.current,
+        {
+          keyframes: [
+            {
+              attr: {
+                "stroke-dasharray": `120 ${heartLineLength - 120}`,
+                "stroke-dashoffset": -20
+              },
+              duration: 0.5
+            },
+            {
+              attr: {
+                "stroke-dasharray": `0 ${heartLineLength}`,
+                "stroke-dashoffset": heartLineLength * -1
+              },
+              duration: 0.6
+            }
+          ],
+          ease: Power4.easeInOut
+        },
+        "-=0.2"
+      );
+
+      timeline.to(
+        ref.current,
+        0.3,
+        {
+          attr: { "stroke-width": 0 },
+          ease: Power4.easeInOut
+        },
         "-=0.4"
-      )
-      .set(circleRef.current, { attr: { "stroke-width": strokeWidth } }, "-=1");
+      );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, [HeartLineStrokeWidths]);
+
+  const explode = useCallback(() => {
+    const zizagTimelines = animateZigzag();
+    const circleTimelines = animateCircle();
+    const sineWavesTimelines = animateSineWaves();
+    const heartLinesTimelines = animateHeartLines();
+
+    TIME_LINE = gsap.timeline({
+      repeat: 500,
+      delay: prevDelay,
+      repeatDelay: prevRepeatDelay,
+      onStart,
+      onComplete,
+      onRepeat
+    });
+
+    TIME_LINE.add(zizagTimelines, 0);
+    TIME_LINE.add(circleTimelines, 0.1);
+    TIME_LINE.add(sineWavesTimelines, 0.6);
+    TIME_LINE.add(heartLinesTimelines, 0.6);
   }, [
-    prevSize,
     prevRepeat,
     prevDelay,
     prevRepeatDelay,
     onComplete,
     onStart,
-    onRepeat
+    onRepeat,
+    animateZigzag,
+    animateCircle,
+    animateSineWaves,
+    animateHeartLines
   ]);
 
   useEffect(() => {
@@ -76,33 +337,87 @@ export default function Explosion12({
     setPrevRepeat(repeat);
   }, [size, delay, repeatDelay, repeat]);
 
+  const circleSize = useMemo(() => (CIRCLE_SIZE * 100) / prevSize, [prevSize]);
+
   return (
-    <svg width={size} height={size} style={style}>
-      <filter id="displacementFilter">
-        <feTurbulence
-          type="turbulence"
-          baseFrequency="0.03"
-          numOctaves="3"
-          result="turbulence"
+    <div
+      style={{
+        width: prevSize,
+        height: prevSize,
+        border: "1px solid #fff",
+        ...style
+      }}
+    >
+      {zigzagRefs.current.map((ref, i) => (
+        <ZigzagSine
+          key={i}
+          shapeRef={ref}
+          width={`${ZIGZAG_SIZE}%`}
+          height={`${ZIGZAG_SIZE}%`}
+          strokeWidth="0"
+          dasharray={`0 ${zigzagSineLength}`}
+          color="#fed766"
+          style={{
+            position: "absolute",
+            top: `${50 + 6 * i - (2 * 6) / 2}%`,
+            left: "50%",
+            transform: "translate(-50%, -50%)"
+          }}
         />
-        <feDisplacementMap
-          in2="turbulence"
-          in="SourceGraphic"
-          scale="30"
-          xChannelSelector="G"
-          yChannelSelector="B"
+      ))}
+      {heartLineRefs.current.map((ref, i) => (
+        <HeartLine
+          key={i}
+          shapeRef={ref}
+          strokeWidth={HeartLineStrokeWidths[i % 2]}
+          width={`${HEART_LINE_SIZE}%`}
+          height={`${HEART_LINE_SIZE}%`}
+          dasharray={`0 ${heartLineLength}`}
+          color={["#fe4a49", "#2ab7ca"][i % 2]}
+          style={{
+            position: "absolute",
+            top: "32.5%",
+            left: "50%",
+            transformOrigin: "3% 32.5%",
+            transform: `
+                rotate(${Math.floor(i / 2) * 180 - 3 * i}deg)
+            `
+          }}
         />
-      </filter>
-      <circle
-        cx={center}
-        cy={center}
-        r={0}
-        strokeWidth={strokeWidth}
-        stroke={color}
-        fill="none"
-        ref={circleRef}
-        style={{ filter: "url(#displacementFilter)" }}
-      />
-    </svg>
+      ))}
+      {waveRefs.current.map((ref, i) => (
+        <SineWave
+          key={i}
+          shapeRef={ref}
+          color="#fed766"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transformOrigin: "0 0",
+            transform: `rotate(${Math.floor(i / 2) * 180 -
+              (2 * 10) / 2 +
+              (i % 2) * 10}deg)`
+          }}
+          dasharray={`0 ${sineWaveLength}`}
+        />
+      ))}
+      {circleRefs.current.map((ref, i) => (
+        <Circle
+          key={i}
+          shapeRef={ref}
+          radius="15%"
+          width={prevSize}
+          height={prevSize}
+          color="#2ab7ca"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)"
+          }}
+        />
+      ))}
+    </div>
   );
 }
