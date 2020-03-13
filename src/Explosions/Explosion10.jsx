@@ -1,19 +1,23 @@
-import React, { useState, Fragment, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  createRef
+} from "react";
 import gsap, { Power4 } from "gsap";
 import ZigZag from "../Icons/ZigZag";
 import Cross from "../Icons/Cross";
 import Circle from "../Icons/Circle";
 
-const ZIGZAGS = [];
-const CROSSES = [];
-const CIRCLES = [];
 const RADIUSES = [47, 30];
 const CROSS_SIZE = 17;
 const ZIGZAG_WIDTH = 10;
 const ZIGZAG_HEIGHT = 20;
 const STROKE_WIDTH = 0.1;
 
-let TIMELINE = null;
+let TIME_LINE = null;
 
 export default function Explosion10({
   size = 400,
@@ -25,124 +29,168 @@ export default function Explosion10({
   onStart,
   onRepeat
 }) {
+  const zigzagRefs = useRef([...Array(9)].map(() => createRef()));
+  const crossRefs = useRef([...Array(9)].map(() => createRef()));
+  const circleRefs = useRef([...Array(2)].map(() => createRef()));
+
   const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
   const strokeWidth = (prevSize * STROKE_WIDTH) / 100;
+  const radiuses = useMemo(
+    () => RADIUSES.map(radius => (prevSize * radius) / 100),
+    [prevSize]
+  );
+  const crossSize = useMemo(() => ((CROSS_SIZE / 2) * prevSize) / 100, [
+    prevSize
+  ]);
+  const angle = 2 * (Math.PI / 9);
 
-  const explode = useCallback(() => {
-    const ease = Power4.easeOut;
-    const radiuses = RADIUSES.map(radius => (prevSize * radius) / 100);
-    const tlgroup1 = [];
-    const tlgroup2 = [];
+  const animateZigzags = useCallback(() => {
+    const timelines = [];
 
-    for (let i = 0; i < 20; i++) {
+    zigzagRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline();
-
-      const zigzag = ZIGZAGS[i];
-      const cross = CROSSES[i];
-
-      const cos = Math.cos((Math.PI / 10) * i);
-      const sin = Math.sin((Math.PI / 10) * i);
-      const size = ((CROSS_SIZE / 2) * prevSize) / 100;
-
-      if (i < 12) {
-        const cos = Math.cos((Math.PI / 6) * i);
-        const sin = Math.sin((Math.PI / 6) * i);
-        const x = ((ZIGZAG_WIDTH / 2) * prevSize) / 100;
-        const y = ((ZIGZAG_HEIGHT / 2) * prevSize) / 100;
-
-        timeline.fromTo(
-          zigzag,
-          2,
-          { x: -x, y: -y },
-          {
-            x: `${-x + radiuses[0] * cos}`,
-            y: `${-y + radiuses[0] * sin}`,
-            ease
-          }
-        );
-        timeline.fromTo(
-          zigzag,
-          3,
-          { rotation: 0, scale: 1 },
-          { rotation: 360, scale: 0, transformOrigin: "50% 50%", ease },
-          0
-        );
-      }
+      const cos = Math.cos(2 * (Math.PI / 9) * i);
+      const sin = Math.sin(2 * (Math.PI / 9) * i);
+      const x = ((ZIGZAG_WIDTH / 2) * prevSize) / 100;
+      const y = ((ZIGZAG_HEIGHT / 2) * prevSize) / 100;
 
       timeline.fromTo(
-        cross,
-        2,
-        { x: -size, y: -size },
+        ref.current,
+        1,
+        { x: -x, y: -y },
         {
-          x: -size + radiuses[1] * cos,
-          y: -size + radiuses[1] * sin,
-          ease
+          x: `${-x + radiuses[0] * cos}`,
+          y: `${-y + radiuses[0] * sin}`,
+          ease: Power4.easeOut
+        }
+      );
+      timeline.fromTo(
+        ref.current,
+        2,
+        { rotation: 0, scale: 1 },
+        {
+          rotation: 360,
+          scale: 0,
+          transformOrigin: "50% 50%",
+          ease: Power4.easeOut
         },
         0
       );
 
+      timelines.push(timeline);
+    }, []);
+
+    return timelines;
+  }, [prevSize, radiuses]);
+
+  const animateCrosses = useCallback(() => {
+    const timelines = [];
+
+    crossRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline();
+      const cos = Math.cos(angle * i);
+      const sin = Math.sin(angle * i);
+
       timeline.fromTo(
-        cross,
-        3,
-        { rotation: 0, scale: 1 },
-        { rotation: 360, scale: 0, transformOrigin: "50% 50%", ease },
-        0
+        ref.current,
+        1,
+        { x: -crossSize, y: -crossSize },
+        {
+          x: -crossSize + radiuses[1] * cos,
+          y: -crossSize + radiuses[1] * sin,
+          ease: Power4.easeOut
+        },
+        "<"
       );
 
-      tlgroup1.push(timeline);
+      timeline.fromTo(
+        ref.current,
+        2,
+        { rotation: 0, scale: 1 },
+        {
+          rotation: 360,
+          scale: 0,
+          transformOrigin: "50% 50%",
+          ease: Power4.easeOut
+        },
+        "<"
+      );
 
-      if (i < 2) {
-        const timeline = gsap.timeline({ delay: 0.5 * i });
-        const circle = CIRCLES[i];
+      timelines.push(timeline);
+    });
 
-        timeline.fromTo(
-          circle,
-          2,
-          { attr: { r: 0 } },
-          { attr: { r: 22 }, ease }
-        );
-        timeline.fromTo(
-          circle,
-          1,
-          { opacity: 1 },
-          { opacity: 0, ease },
-          "-=1.5"
-        );
+    return timelines;
+  }, [radiuses, crossSize, angle]);
 
-        tlgroup2.push(timeline);
-      }
-    }
+  const animateCircles = useCallback(() => {
+    const timelines = [];
 
-    TIMELINE = gsap.timeline({
+    circleRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline({ delay: 0.3 * i });
+
+      timeline.set(ref.current, { attr: { "stroke-width": 1 } });
+      timeline.fromTo(
+        ref.current,
+        1,
+        { scale: 0, transformOrigin: "center" },
+        { scale: 1, ease: Power4.easeOut }
+      );
+      timeline.fromTo(
+        ref.current,
+        0.3,
+        { attr: { "stroke-width": 1 }, transformOrigin: "center" },
+        { attr: { "stroke-width": 0 }, ease: Power4.easeOut },
+        "-=0.6"
+      );
+      timeline.fromTo(
+        ref.current,
+        1,
+        { opacity: 1 },
+        { opacity: 0, ease: Power4.easeOut },
+        "-=0.3"
+      );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, []);
+
+  const explode = useCallback(() => {
+    const zigzagsTimelines = animateZigzags();
+    const crossesTimelines = animateCrosses();
+    const circlesTimelines = animateCircles();
+
+    TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
-      repeatDelay: prevRepeatDelay,
       delay: prevDelay,
+      repeatDelay: prevRepeatDelay,
       onStart,
       onComplete,
       onRepeat
     });
 
-    TIMELINE.add(tlgroup1, 0);
-    TIMELINE.add(tlgroup2, 0.2);
+    TIME_LINE.add(zigzagsTimelines, 0);
+    TIME_LINE.add(crossesTimelines, 0);
+    TIME_LINE.add(circlesTimelines, 0.1);
   }, [
     onComplete,
     onStart,
     onRepeat,
     prevDelay,
     prevRepeat,
-    prevSize,
-    prevRepeatDelay
+    prevRepeatDelay,
+    animateZigzags,
+    animateCrosses,
+    animateCircles
   ]);
 
   useEffect(() => {
-    if (TIMELINE) TIMELINE.kill();
-  });
-
-  useEffect(() => {
+    if (TIME_LINE) TIME_LINE.kill();
     explode();
   }, [explode]);
 
@@ -155,43 +203,46 @@ export default function Explosion10({
 
   return (
     <div style={{ width: prevSize, height: prevSize, ...style }}>
-      {[...Array(20)].map((_, i) => (
-        <Fragment key={i}>
-          {i < 12 && (
-            <ZigZag
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: `${ZIGZAG_WIDTH}%`,
-                height: `${ZIGZAG_HEIGHT}%`
-              }}
-              ref={el => (ZIGZAGS[i] = el)}
-            />
-          )}
-          <Cross
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: `${CROSS_SIZE}%`,
-              height: `${CROSS_SIZE}%`
-            }}
-            ref={el => (CROSSES[i] = el)}
-          />
-          {i < 2 && (
-            <Circle
-              radius="0"
-              fill="none"
-              color="rgb(255, 208, 3)"
-              strokeWidth={strokeWidth}
-              style={{ position: "absolute", width: "100%", height: "100%" }}
-              shapeRef={el => (CIRCLES[i] = el)}
-            />
-          )}
-        </Fragment>
+      {zigzagRefs.current.map((ref, i) => (
+        <ZigZag
+          key={i}
+          color="#fe4a49"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: `${ZIGZAG_WIDTH}%`,
+            height: `${ZIGZAG_HEIGHT}%`
+          }}
+          ref={ref}
+        />
+      ))}
+      {crossRefs.current.map((ref, i) => (
+        <Cross
+          key={i}
+          ref={ref}
+          color="#2ab7ca"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: `${CROSS_SIZE}%`,
+            height: `${CROSS_SIZE}%`
+          }}
+        />
+      ))}
+      {circleRefs.current.map((ref, i) => (
+        <Circle
+          key={i}
+          radius="40%"
+          fill="none"
+          color="#fed766"
+          strokeWidth={strokeWidth}
+          style={{ position: "absolute", width: "100%", height: "100%" }}
+          shapeRef={ref}
+        />
       ))}
     </div>
   );

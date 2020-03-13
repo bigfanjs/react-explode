@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 
-function Cross({ width = 70, height = 70, style }, ref) {
+function Cross({ width = 70, height = 70, color = "#fff", style }, ref) {
   return (
     <svg
       ref={ref}
@@ -11,7 +11,7 @@ function Cross({ width = 70, height = 70, style }, ref) {
     >
       <line
         fill="none"
-        stroke="#1FE2FF"
+        stroke={color}
         strokeWidth="6"
         strokeMiterlimit="10"
         x1="0.48"
@@ -21,7 +21,7 @@ function Cross({ width = 70, height = 70, style }, ref) {
       />
       <line
         fill="none"
-        stroke="#1FE2FF"
+        stroke={color}
         strokeWidth="6"
         strokeMiterlimit="10"
         x1="34.8"
