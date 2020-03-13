@@ -19,7 +19,7 @@ const STROKE_WIDTH = 0.1;
 
 let TIME_LINE = null;
 
-export default function Explosion10({
+export default function Polillo({
   size = 400,
   delay,
   repeatDelay,

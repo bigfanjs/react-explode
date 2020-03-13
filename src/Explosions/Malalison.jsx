@@ -9,7 +9,7 @@ const STROKE_WIDTH = 0.5;
 
 let TIMELINE = null;
 
-export default function Explosion7({
+export default function Malalison({
   size,
   delay,
   repeatDelay,

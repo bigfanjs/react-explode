@@ -9,7 +9,7 @@ const WAVE_HEIGHT = 3.75;
 
 let TIMELINE = null;
 
-export default function Exploion8({
+export default function Panay({
   size,
   delay,
   repeatDelay,

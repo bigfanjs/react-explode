@@ -130,7 +130,7 @@ function Line({ size, index, lineRef }) {
   );
 }
 
-export default function Explosion20({
+export default function Ticao({
   size,
   delay,
   repeatDelay,

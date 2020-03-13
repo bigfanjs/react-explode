@@ -19,7 +19,7 @@ const STROKE_WIDTH = 0.5;
 
 const shapes = [Square, Triangle, Circle, Triangle];
 
-export default function Explosion16({
+export default function Lubang({
   size,
   delay,
   repeatDelay,

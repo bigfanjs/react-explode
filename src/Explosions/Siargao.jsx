@@ -33,7 +33,7 @@ const CIRCLES_LENGTH = CIRCLES.length;
 const LINE_STROKE_WIDTH = 2;
 const CIRCLE_STROKE_WIDTH = 2;
 
-export default function Explosion19({
+export default function Siargao({
   size,
   delay,
   repeatDelay,

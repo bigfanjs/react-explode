@@ -5,7 +5,7 @@ import React, {
   createRef,
   useCallback
 } from "react";
-import gsap, { Power1, Power4, Expo } from "gsap";
+import gsap, { Power4 } from "gsap";
 import SineWave, { length as SineWaveLength } from "../Icons/SineWave";
 import Circle from "../Icons/Circle";
 import Stick, { length as StickLength } from "../Icons/Stick";
@@ -18,7 +18,7 @@ const STICK_HEIGHT = 15;
 const STROKE_WIDTH = 0.5;
 const SINE_WAVE_STROKE_WIDTHS = [10, 5];
 
-export default function Explosion18({
+export default function Negros({
   size,
   delay,
   repeatDelay,

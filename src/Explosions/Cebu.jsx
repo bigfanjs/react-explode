@@ -18,7 +18,7 @@ const ORIGINS = [
 
 let TIME_LINE = null;
 
-export default function Explosion6({
+export default function Cebu({
   size,
   delay,
   repeatDelay,

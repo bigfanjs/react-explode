@@ -14,7 +14,7 @@ const DURATIONS = [0.6, 1];
 
 let TIME_LINE = null;
 
-export default function Explosion1({
+export default function Boracay({
   size,
   delay,
   repeatDelay,

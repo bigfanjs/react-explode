@@ -6,7 +6,7 @@ const STROKE_WIDTH = 2.5;
 
 let TIME_LINE = null;
 
-export default function Explosion5({
+export default function Palawan({
   size,
   delay,
   repeatDelay,

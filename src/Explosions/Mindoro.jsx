@@ -5,7 +5,7 @@ import React, {
   useCallback,
   createRef
 } from "react";
-import gsap, { Power1, Power4, Expo } from "gsap";
+import gsap, { Power4, Expo } from "gsap";
 
 import Seahouse, { length as SeahouseLength } from "../Icons/Seahorse";
 import Hexagon from "../Icons/Hexagon";
@@ -22,7 +22,7 @@ const angle = (2 * Math.PI) / 3;
 const TRIANGLE_RADIUS = 30;
 const TRIANGLE_SIZE = 6;
 
-export default function Explosion17({
+export default function Mindoro({
   size,
   delay,
   repeatDelay,

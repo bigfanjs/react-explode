@@ -16,7 +16,7 @@ const DURATIONS = [0.6, 1];
 
 let TIME_LINE = null;
 
-export default function Explosion13({
+export default function Balabac({
   size,
   delay,
   repeatDelay,

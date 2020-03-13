@@ -5,8 +5,7 @@ import React, {
   createRef,
   useRef
 } from "react";
-import gsap, { Power4, Power1, Power2, Linear } from "gsap";
-//   import Circle from "../Icons/Circle";
+import gsap, { Power4, Power1, Power2 } from "gsap";
 import CircleIcon from "../Icons/Circle";
 import SquareIcon from "../Icons/Square";
 import TriangleIcon from "../Icons/Triangle";
@@ -18,7 +17,7 @@ const SHAPE_SIZE = 6;
 
 let TIME_LINE = null;
 
-function Triangle({ innerRef, pos, style, strokeWidth }) {
+function Triangle({ innerRef, pos, style }) {
   return (
     <TriangleIcon
       style={{ ...style, top: `${pos.t * 100}%` }}
@@ -58,13 +57,12 @@ const groups = [
   [Square, Circle, Triangle]
 ];
 
-export default function Explosion13({
+export default function Leyte({
   size,
   delay,
   repeatDelay,
   repeat,
   style,
-  color = "white",
   onComplete,
   onStart,
   onRepeat

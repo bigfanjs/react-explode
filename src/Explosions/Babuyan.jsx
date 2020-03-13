@@ -5,8 +5,7 @@ import React, {
   createRef,
   useRef
 } from "react";
-import gsap, { Power4, Power1, Linear } from "gsap";
-//   import Circle from "../Icons/Circle";
+import gsap, { Power4, Power1 } from "gsap";
 import Star from "../Icons/Star";
 import Pentagon from "../Icons/Pentagon";
 
@@ -20,13 +19,12 @@ const LINES = 5;
 
 let TIME_LINE = null;
 
-export default function Explosion13({
+export default function Babuyan({
   size,
   delay,
   repeatDelay,
   repeat,
   style,
-  color = "white",
   onComplete,
   onStart,
   onRepeat

@@ -14,7 +14,7 @@ const CIRCLES = [
 
 let TIME_LINE = null;
 
-export default function Explosion4({
+export default function Siquijor({
   size,
   delay,
   repeatDelay,

@@ -9,7 +9,7 @@ const COUNT = 10;
 
 let TIMELINE = null;
 
-export default function Explosion9({
+export default function Bohol({
   size = 400,
   delay,
   repeatDelay,

@@ -23,7 +23,7 @@ let TIMELINE = null;
 
 const ease = Power4.easeOut;
 
-export default function Explosion11({
+export default function Pescador({
   size = 400,
   delay,
   repeatDelay,

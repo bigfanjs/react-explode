@@ -20,7 +20,7 @@ const HEART_LINE_SIZE = 50;
 const HEART_LINE_STROKE_WIDTHS = [0.25, 0.1];
 let TIME_LINE;
 
-export default function Explosion21({
+export default function Luzon({
   size,
   delay,
   repeatDelay,

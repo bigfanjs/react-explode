@@ -16,7 +16,7 @@ const COUNT = 32;
 
 let TIME_LINE = null;
 
-export default function Explosion3({
+export default function Corregidor({
   size,
   delay,
   repeatDelay,
