@@ -1,17 +1,18 @@
 import React, {
-  Fragment,
+  createRef,
   useState,
   useEffect,
   useCallback,
+  useMemo,
   useRef
 } from "react";
 import gsap, { Power4 } from "gsap";
+import Circle from "../Icons/Circle";
 
-const TARGETS = [[]];
-const RADIUSES = [47.4, 30];
-const CIRCLE_STROKE_WIDTH = 2;
+const LINES_RADIUS = 47.4;
+const CIRCLE_STROKE_WIDTH = 0.1;
 const LINE_STROKE_WIDTH = 1;
-const COUNT = 16;
+const COUNT = 32;
 
 let TIME_LINE = null;
 
@@ -21,111 +22,114 @@ export default function Explosion3({
   repeatDelay,
   repeat,
   style,
-  color = "white",
+  color = "#fff",
   onComplete,
   onStart,
   onRepeat
 }) {
   const circleRef = useRef();
+  const linesRefs = useRef([...Array(COUNT)].map(() => createRef()));
+
   const [prevSize, setPrevSize] = useState(400);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const center = prevSize / 2;
-  const circleStrokeWidth = Math.ceil((prevSize * CIRCLE_STROKE_WIDTH) / 100);
-  const lineStrokeWidth = Math.ceil((prevSize * LINE_STROKE_WIDTH) / 100);
+  const center = useMemo(() => prevSize / 2, [prevSize]);
+  const circleStrokeWidth = useMemo(
+    () => (prevSize * CIRCLE_STROKE_WIDTH) / 100,
+    [prevSize]
+  );
+  const lineStrokeWidth = useMemo(() => (prevSize * LINE_STROKE_WIDTH) / 100, [
+    prevSize
+  ]);
 
-  const explode = useCallback(() => {
-    const angle = Math.PI / (COUNT / 2);
-    const ease = Power4.easeOut;
-    const radiuses = RADIUSES.map(radius => (prevSize * radius) / 100);
-    const center = prevSize / 2;
-    const timeline = gsap.timeline({
-      delay: 0.35,
-      onComplete: onComplete && onComplete.bind(null, 2),
-      onStart: onStart && onStart.bind(null, 2),
-      onRepeat: onRepeat && onRepeat.bind(null, 2)
-    });
-    const timelines = [];
-    const circleStrokeWidth = Math.ceil((prevSize * CIRCLE_STROKE_WIDTH) / 100);
-
-    for (let i = 0; i < 2; i++) {
-      for (let j = 0; j < COUNT; j++) {
-        const isLast = j >= COUNT - 1;
-
-        const timeline = gsap.timeline({
-          delay: i * 0.5,
-          onComplete: onComplete && isLast && onComplete.bind(null, i),
-          onStart: onStart && isLast && onStart.bind(null, i),
-          onRepeat: onRepeat && isLast && onRepeat.bind(null, i)
-        });
-
-        const x = center + radiuses[0] * Math.cos(j * angle);
-        const y = center + radiuses[0] * Math.sin(j * angle);
-
-        const target = TARGETS[i][j];
-
-        const start = { x2: x, y2: y };
-        const end = { x1: x, y1: y };
-
-        timeline
-          .fromTo(
-            target,
-            1,
-            { attr: { x2: center, y2: center } },
-            { attr: start, ease }
-          )
-          .fromTo(
-            target,
-            1,
-            { attr: { x1: center, y1: center } },
-            { attr: end, ease },
-            "-=0.9"
-          );
-
-        timelines.push(timeline);
-      }
-    }
+  const animateCircle = useCallback(() => {
+    const timeline = gsap.timeline();
 
     timeline
       .fromTo(
         circleRef.current,
-        1,
-        { attr: { r: 0 } },
-        { attr: { r: radiuses[1] }, ease }
+        0.7,
+        { scale: 0, transformOrigin: "center" },
+        { scale: 1, ease: Power4.easeOut }
       )
       .fromTo(
         circleRef.current,
-        1,
+        0.4,
         { attr: { "stroke-width": circleStrokeWidth } },
-        { attr: { "stroke-width": 0 }, ease },
-        "-=0.9"
+        { attr: { "stroke-width": 0 }, ease: Power4.easeOut },
+        "-=0.3"
       )
       .fromTo(
         circleRef.current,
-        0.6,
-        { attr: { opacity: 1 } },
-        { attr: { opacity: 0 }, ease },
-        "-=0.3"
+        0.3,
+        { opacity: 1 },
+        { opacity: 0, ease: Power4.easeOut },
+        "-=0.2"
       );
 
-    timelines.push(timeline);
+    return timeline;
+  }, [circleStrokeWidth]);
+
+  const animateLines = useCallback(() => {
+    const timelines = [];
+    const angle = Math.PI / (COUNT / 4);
+    const radius = (prevSize * LINES_RADIUS) / 100;
+
+    linesRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline({
+        delay: Math.floor(i / (COUNT / 2)) * 0.4
+      });
+      const x = center + radius * Math.cos(i * angle);
+      const y = center + radius * Math.sin(i * angle);
+      const start = { x2: x, y2: y };
+      const end = { x1: x, y1: y };
+
+      timeline
+        .fromTo(
+          ref.current,
+          1,
+          { attr: { x2: center, y2: center } },
+          { attr: start, ease: Power4.easeOut }
+        )
+        .fromTo(
+          ref.current,
+          1,
+          { attr: { x1: center, y1: center } },
+          { attr: end, ease: Power4.easeOut },
+          "-=0.9"
+        );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, [center, prevSize]);
+
+  const explode = useCallback(() => {
+    const linesTimelines = animateLines();
+    const circletimeline = animateCircle();
 
     TIME_LINE = gsap.timeline({
       delay: prevDelay,
       repeat: prevRepeat,
-      repeatDelay: prevRepeatDelay
+      repeatDelay: prevRepeatDelay,
+      onComplete,
+      onStart,
+      onRepeat
     });
-    TIME_LINE.add(timelines);
+    TIME_LINE.add(linesTimelines, 0);
+    TIME_LINE.add(circletimeline, 0.3);
   }, [
-    prevSize,
     prevRepeat,
     prevDelay,
     prevRepeatDelay,
     onComplete,
     onStart,
-    onRepeat
+    onRepeat,
+    animateCircle,
+    animateLines
   ]);
 
   useEffect(() => {
@@ -136,47 +140,35 @@ export default function Explosion3({
   }, [size, delay, repeatDelay, repeat]);
 
   useEffect(() => {
+    if (TIME_LINE) TIME_LINE.kill();
     explode();
   }, [explode]);
 
-  useEffect(() => {
-    TIME_LINE.kill();
-    explode();
-  });
-
   return (
-    <svg style={style} width={prevSize} height={prevSize}>
-      <>
-        {[...Array(2)].map((_, i) => {
-          TARGETS[i] = [];
-
-          return (
-            <Fragment key={i}>
-              {[...Array(COUNT)].map((_, j) => (
-                <line
-                  x1={center}
-                  y1={center}
-                  x2={center}
-                  y2={center}
-                  ref={el => (TARGETS[i][j] = el)}
-                  key={j}
-                  strokeWidth={lineStrokeWidth}
-                  stroke={color}
-                />
-              ))}
-            </Fragment>
-          );
-        })}
-      </>
-      <circle
-        cx={center}
-        cy={center}
-        r={0}
+    <div style={{ width: prevSize, height: prevSize, ...style }}>
+      <svg width={prevSize} height={prevSize}>
+        {linesRefs.current.map((ref, i) => (
+          <line
+            key={i}
+            x1={center}
+            y1={center}
+            x2={center}
+            y2={center}
+            ref={ref}
+            strokeWidth={lineStrokeWidth}
+            stroke={color}
+          />
+        ))}
+      </svg>
+      <Circle
+        width={prevSize}
+        height={prevSize}
+        r="47%"
         strokeWidth={circleStrokeWidth}
-        stroke={color}
-        fill="none"
-        ref={circleRef}
+        color={color}
+        shapeRef={circleRef}
+        style={{ position: "absolute", left: 0, top: 0 }}
       />
-    </svg>
+    </div>
   );
 }
