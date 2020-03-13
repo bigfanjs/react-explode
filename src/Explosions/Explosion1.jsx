@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  createRef
+} from "react";
 import gsap, { Power4 } from "gsap";
 
 const STROKE_WIDTH = 0.5;
 const RADIUS = 47.5;
 const COUNT = 16;
 const DURATIONS = [0.6, 1];
-const LINES = [];
 
 let TIME_LINE = null;
 
@@ -15,11 +20,12 @@ export default function Explosion1({
   repeatDelay,
   repeat,
   style,
-  color = "white",
+  color = "#fff",
   onComplete,
   onStart,
   onRepeat
 }) {
+  const linesRefs = useRef([...Array(COUNT)].map(() => createRef()));
   const [prevSize, setPrevSize] = useState(400);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
@@ -45,24 +51,22 @@ export default function Explosion1({
       onRepeat
     });
 
-    for (let i = 0; i < COUNT; i++) {
+    linesRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline();
       const x = center + radius * Math.cos(i * angle);
       const y = center + radius * Math.sin(i * angle);
-      const target = LINES[i];
       const start = { x2: x, y2: y };
       const end = { x1: x, y1: y };
 
-      const timeline = gsap.timeline();
-
       timeline
         .fromTo(
-          target,
+          ref.current,
           durations[0],
           { attr: { x2: center, y2: center } },
           { attr: start, ease }
         )
         .fromTo(
-          target,
+          ref.current,
           durations[1],
           { attr: { x1: center, y1: center } },
           { attr: end, ease },
@@ -70,7 +74,7 @@ export default function Explosion1({
         );
 
       timelines.push(timeline);
-    }
+    });
 
     TIME_LINE.add(timelines);
   }, [
@@ -84,13 +88,9 @@ export default function Explosion1({
   ]);
 
   useEffect(() => {
+    if (TIME_LINE) TIME_LINE.kill();
     explode();
   }, [explode]);
-
-  useEffect(() => {
-    TIME_LINE.kill();
-    explode();
-  });
 
   useEffect(() => {
     setPrevSize(size);
@@ -102,13 +102,13 @@ export default function Explosion1({
   return (
     <svg width={size} height={size} style={style}>
       <>
-        {[...Array(COUNT)].map((_, i) => (
+        {linesRefs.current.map((ref, i) => (
           <line
             x1={center}
             y1={center}
             x2={center}
             y2={center}
-            ref={el => (LINES[i] = el)}
+            ref={ref}
             key={i}
             strokeWidth={strokeWidth}
             stroke={color}
