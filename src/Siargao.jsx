@@ -6,8 +6,8 @@ import React, {
   createRef
 } from "react";
 import gsap, { Power1, Power4, Expo } from "gsap";
-import Wave2, { length as WaveLength } from "../Icons/Wave2";
-import Circle from "../Icons/Circle";
+import Wave2, { length as WaveLength } from "./Icons/Wave2";
+import Circle from "./Icons/Circle";
 
 let TIME_LINE;
 const unicornColors = [
@@ -51,7 +51,7 @@ export default function Siargao({
     }))
   );
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);

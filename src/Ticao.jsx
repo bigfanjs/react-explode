@@ -7,7 +7,7 @@ import React, {
   useMemo
 } from "react";
 import gsap, { Power4 } from "gsap";
-import Circle from "../Icons/Circle";
+import Circle from "./Icons/Circle";
 
 const LINES_LENGTH = 4;
 const LINE_LENGTH = 60;
@@ -146,7 +146,7 @@ export default function Ticao({
   );
   const circlesRefs = useRef([...Array(CIRCLES_LENGTH)].map(() => createRef()));
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
@@ -334,7 +334,6 @@ export default function Ticao({
       style={{
         width: prevSize,
         height: prevSize,
-        border: "1px solid #fff",
         ...style
       }}
     >

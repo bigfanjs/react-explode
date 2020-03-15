@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from "react";
-import Shape from "../Icons/Shape";
-import Circle from "../Icons/Circle";
+import Shape from "./Icons/Shape";
+import Circle from "./Icons/Circle";
 import gsap, { Power1, Power4 } from "gsap";
 
 const SHAPES = [];
@@ -29,7 +29,7 @@ export default function Cebu({
   onStart,
   onRepeat
 }) {
-  const [prevSize, setPrevSize] = useState(200);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);

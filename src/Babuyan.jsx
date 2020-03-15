@@ -6,8 +6,8 @@ import React, {
   useRef
 } from "react";
 import gsap, { Power4, Power1 } from "gsap";
-import Star from "../Icons/Star";
-import Pentagon from "../Icons/Pentagon";
+import Star from "./Icons/Star";
+import Pentagon from "./Icons/Pentagon";
 
 const RADIUS = 50;
 //   const LINE_RADIUS = 35;
@@ -35,7 +35,7 @@ export default function Babuyan({
   const linesRefs = useRef([...Array(5)].map(() => createRef()));
   //   const vShapesRef = useRef([...Array(5)].map(() => createRef()));
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
@@ -158,9 +158,7 @@ export default function Babuyan({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div
-      style={{ width: size, height: size, border: "1px solid #fff", ...style }}
-    >
+    <div style={{ width: size, height: size, ...style }}>
       <Star
         strokeWidth={strokeWidth}
         ref={starRef}

@@ -6,7 +6,7 @@ import React, {
   useRef
 } from "react";
 import gsap, { Power4, Linear } from "gsap";
-import Circle from "../Icons/Circle";
+import Circle from "./Icons/Circle";
 
 const RADIUS = 60;
 const LINE_RADIUS = 35;
@@ -31,7 +31,7 @@ export default function Balabac({
   const circlesRefs = useRef([...Array(4)].map(() => createRef()));
   const linesRefs = useRef([...Array(4)].map(() => createRef()));
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
@@ -158,9 +158,7 @@ export default function Balabac({
   const circlesRadius = (CIRCLES_RADIUS * prevSize) / 100;
 
   return (
-    <div
-      style={{ width: size, height: size, border: "1px solid #fff", ...style }}
-    >
+    <div style={{ width: size, height: size, ...style }}>
       {Array.from(Array(4)).map((_, i) => {
         const x = Math.cos(Math.PI / 4 + i * (Math.PI / 2));
         const y = Math.sin(Math.PI / 4 + i * (Math.PI / 2));

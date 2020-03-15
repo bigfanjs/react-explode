@@ -7,9 +7,9 @@ import React, {
   createRef
 } from "react";
 import gsap, { Power4 } from "gsap";
-import ZigZag from "../Icons/ZigZag";
-import Cross from "../Icons/Cross";
-import Circle from "../Icons/Circle";
+import ZigZag from "./Icons/ZigZag";
+import Cross from "./Icons/Cross";
+import Circle from "./Icons/Circle";
 
 const RADIUSES = [47, 30];
 const CROSS_SIZE = 17;

@@ -7,12 +7,13 @@ import React, {
   useMemo
 } from "react";
 import gsap, { Power4 } from "gsap";
-import ZigzagSine, { length as zigzagSineLength } from "../Icons/ZigzagSine";
-import HeartLine, { length as heartLineLength } from "../Icons/HeartLine";
-import Circle from "../Icons/Circle";
-import SineWave, { length as sineWaveLength } from "../Icons/SineWave";
+import ZigzagSine, { length as zigzagSineLength } from "./Icons/ZigzagSine";
+import HeartLine, { length as heartLineLength } from "./Icons/HeartLine";
+import Circle from "./Icons/Circle";
+import SineWave, { length as sineWaveLength } from "./Icons/SineWave";
 
 const CIRCLE_SIZE = 40;
+const SINE_WAVE_SIZE = 50;
 const ZIGZAG_SIZE = 80;
 const ZIGZAG_STROKE_WIDTH = 0.24;
 const CIRCLE_STROKE_WIDTH = 0.35;
@@ -35,7 +36,7 @@ export default function Luzon({
   const zigzagRefs = useRef([...Array(3)].map(() => createRef()));
   const heartLineRefs = useRef([...Array(4)].map(() => createRef()));
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
@@ -63,33 +64,39 @@ export default function Luzon({
         }
       });
 
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": zigzagStrokeWidth }
-      });
-
-      timeline.to(
+      timeline.fromTo(
         ref.current,
+        0.2,
+        { attr: { "stroke-width": 0 } },
+        { attr: { "stroke-width": zigzagStrokeWidth } }
+      );
+
+      timeline.fromTo(
+        ref.current,
+        0.6,
         {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `50 ${zigzagSineLength - 50}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.4
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${zigzagSineLength}`,
-                "stroke-dashoffset": zigzagSineLength * -1
-              },
-              duration: 0.6
-            }
-          ],
-          ease: Power4.easeInOut
+          attr: {
+            "stroke-dasharray": `0 ${zigzagSineLength}`,
+            "stroke-dashoffset": 0
+          }
+        },
+        {
+          attr: {
+            "stroke-dasharray": `50 ${zigzagSineLength - 50}`,
+            "stroke-dashoffset": -20
+          },
+          ease: Power4.easeIn
         },
         "-=0.2"
       );
+
+      timeline.to(ref.current, 0.5, {
+        attr: {
+          "stroke-dasharray": `0 ${zigzagSineLength}`,
+          "stroke-dashoffset": zigzagSineLength * -1
+        },
+        ease: Power4.easeOut
+      });
 
       timeline.to(
         ref.current,
@@ -310,7 +317,6 @@ export default function Luzon({
       style={{
         width: prevSize,
         height: prevSize,
-        border: "1px solid #fff",
         ...style
       }}
     >
@@ -356,6 +362,7 @@ export default function Luzon({
           key={i}
           shapeRef={ref}
           color="#fed766"
+          width={`${SINE_WAVE_SIZE}%`}
           style={{
             position: "absolute",
             top: "50%",

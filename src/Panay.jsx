@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import gsap, { Power2 } from "gsap";
-import Wave from "../Icons/Wave";
+import Wave from "./Icons/Wave";
 
 const COUNT = 8;
 const PATHS = [];
@@ -20,7 +20,7 @@ export default function Panay({
   onStart,
   onRepeat
 }) {
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);

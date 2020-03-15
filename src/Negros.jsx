@@ -3,20 +3,26 @@ import React, {
   useRef,
   useEffect,
   createRef,
-  useCallback
+  useCallback,
+  useMemo
 } from "react";
 import gsap, { Power4 } from "gsap";
-import SineWave, { length as SineWaveLength } from "../Icons/SineWave";
-import Circle from "../Icons/Circle";
-import Stick, { length as StickLength } from "../Icons/Stick";
+import SineWave, { length as SineWaveLength } from "./Icons/SineWave";
+import Circle from "./Icons/Circle";
+import Stick, { length as StickLength } from "./Icons/Stick";
 
-// animartion configs:
+// animation configs:
 let TIME_LINE;
+const SINE_WAVE_WIDTHS = [35, 42.5];
+const SINE_WAVE_HEIGHT = 3.75;
 const INIT_RADIUS = 6;
 const STICK_WIDTH = 8.75;
 const STICK_HEIGHT = 15;
+const STICK_RADIUS = 12.5;
 const STROKE_WIDTH = 0.5;
-const SINE_WAVE_STROKE_WIDTHS = [10, 5];
+const LINE_STROKE_WIDTH = 1.5;
+const SINE_WAVE_STROKE_WIDTHS = [1, 2];
+const LINE_X = 2;
 
 export default function Negros({
   size,
@@ -35,39 +41,44 @@ export default function Negros({
     [...Array(9)].map(() => ({ svg: createRef(), shape: createRef() }))
   );
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const center = prevSize / 2;
   const angle = Math.PI / 2;
   const stickAngle = (2 * Math.PI) / 9;
   const prefixAngle = Math.PI / 4;
-  const initRadius = (prevSize * INIT_RADIUS) / 100;
-  const SineWaveStrokeWidths = SINE_WAVE_STROKE_WIDTHS.map(
-    strokewidth => (strokewidth * 100) / 400
+  const sineWaveStrokeWidths = SINE_WAVE_STROKE_WIDTHS.map(strokewidth =>
+    Math.min((strokewidth * prevSize) / 100, 2)
   );
+  const lineStrokeWidth = useMemo(() => (LINE_STROKE_WIDTH * prevSize) / 100, [
+    prevSize
+  ]);
 
   const animateLine = useCallback(() => {
     const timeline = gsap.timeline({ repeat: 1, yoyo: true });
+    const lineX = (LINE_X * prevSize) / 100;
 
+    timeline.set(lineRef.current, { attr: { "stroke-width": 0 } });
     timeline.fromTo(
       lineRef.current,
       0.2,
       { attr: { "stroke-width": 0 } },
-      { attr: { "stroke-width": 6 } }
+      { attr: { "stroke-width": lineStrokeWidth } }
     );
-    timeline.to(
+    timeline.fromTo(
       lineRef.current,
-      0.6,
-      {
-        keyframes: [
-          { attr: { x2: prevSize - 10 }, ease: Power4.easeIn },
-          { attr: { x1: prevSize - 10 }, ease: Power4.easeOut }
-        ]
-      },
+      0.3,
+      { attr: { x2: lineX } },
+      { attr: { x2: prevSize - lineX }, ease: Power4.easeIn },
       "<"
+    );
+    timeline.fromTo(
+      lineRef.current,
+      0.3,
+      { attr: { x1: lineX } },
+      { attr: { x1: prevSize - lineX }, ease: Power4.easeOut }
     );
     timeline.to(
       lineRef.current,
@@ -77,12 +88,13 @@ export default function Negros({
     );
 
     return timeline;
-  }, [prevSize]);
+  }, [prevSize, lineStrokeWidth]);
 
   const animateSticks = useCallback(() => {
     const timelines = [];
     const width = ((STICK_WIDTH / 2) * prevSize) / 100;
     const height = ((STICK_HEIGHT / 2) * prevSize) / 100;
+    const radius = (STICK_RADIUS * prevSize) / 100;
 
     sticksRefs.current.forEach(({ svg, shape }, i) => {
       const timeline = gsap.timeline();
@@ -101,7 +113,11 @@ export default function Negros({
         svg.current,
         1,
         { x: -width, y: -height },
-        { x: 50 * x - width, y: 50 * y - height, ease: Power4.easeInOut }
+        {
+          x: radius * x - width,
+          y: radius * y - height,
+          ease: Power4.easeInOut
+        }
       );
       timeline.to(shape.current, 0.2, { attr: { "stroke-width": 1 } }, "<");
       timeline.to(
@@ -147,7 +163,7 @@ export default function Negros({
     const timelines = [];
     const strokeWidth = (prevSize * STROKE_WIDTH) / 100;
 
-    circlesRefs.current.forEach((ref, i) => {
+    circlesRefs.current.forEach(ref => {
       const timeline = gsap.timeline({ repeat: 1, repeatDelay: 0 });
 
       timeline.set(ref.current, {
@@ -200,7 +216,7 @@ export default function Negros({
       });
 
       timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": SineWaveStrokeWidths[i % 2] }
+        attr: { "stroke-width": sineWaveStrokeWidths[i % 2] }
       });
 
       timeline.to(
@@ -241,7 +257,7 @@ export default function Negros({
     });
 
     return timelines;
-  }, [SineWaveStrokeWidths]);
+  }, [sineWaveStrokeWidths]);
 
   const explode = useCallback(() => {
     const lineTimeline = animateLine();
@@ -288,9 +304,7 @@ export default function Negros({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div
-      style={{ width: size, height: size, border: "1px solid #fff", ...style }}
-    >
+    <div style={{ width: size, height: size, ...style }}>
       {circlesRefs.current.map((ref, i) => (
         <Circle
           key={i}
@@ -310,18 +324,18 @@ export default function Negros({
         Array.from(Array(2)).map((_, j) => (
           <SineWave
             key={j + 2 * i}
-            width={j % 2 ? 140 : 170}
-            strokeWidth={SineWaveStrokeWidths[j % 2]}
+            width={`${SINE_WAVE_WIDTHS[j % 2]}%`}
+            height={`${SINE_WAVE_HEIGHT}%`}
+            strokeWidth={SINE_WAVE_STROKE_WIDTHS[j % 2]}
             shapeRef={sinewavesRefs.current[j + 2 * i]}
             dasharray={`0 ${SineWaveLength}`}
             color="#2ab7ca"
             style={{
               position: "absolute",
-              left: center + initRadius * Math.cos(i * angle - prefixAngle),
-              top:
-                center +
-                initRadius * Math.sin(i * angle - prefixAngle) +
-                j * 10,
+              left: `${50 + INIT_RADIUS * Math.cos(i * angle - prefixAngle)}%`,
+              top: `${50 +
+                INIT_RADIUS * Math.sin(i * angle - prefixAngle) +
+                j * 2.5}%`,
               transform: `
                   rotate(${Math.floor(i / 2) * 180}deg)`,
               transformOrigin: "0 0"
@@ -353,13 +367,13 @@ export default function Negros({
       <svg width={prevSize} height={prevSize}>
         <line
           ref={lineRef}
-          x1="10"
-          y1="200"
-          x2="10"
-          y2="200"
+          x1={`${LINE_X}%`}
+          y1="50%"
+          x2={`${LINE_X}%`}
+          y2="50%"
           stroke="#fed766"
           strokeLinecap="round"
-          strokeWidth="6"
+          strokeWidth={0}
         />
       </svg>
     </div>

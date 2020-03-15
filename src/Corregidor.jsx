@@ -7,7 +7,7 @@ import React, {
   useRef
 } from "react";
 import gsap, { Power4 } from "gsap";
-import Circle from "../Icons/Circle";
+import Circle from "./Icons/Circle";
 
 const LINES_RADIUS = 47.4;
 const CIRCLE_STROKE_WIDTH = 0.1;
@@ -30,7 +30,7 @@ export default function Corregidor({
   const circleRef = useRef();
   const linesRefs = useRef([...Array(COUNT)].map(() => createRef()));
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);

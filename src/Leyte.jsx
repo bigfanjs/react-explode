@@ -6,9 +6,9 @@ import React, {
   useRef
 } from "react";
 import gsap, { Power4, Power1, Power2 } from "gsap";
-import CircleIcon from "../Icons/Circle";
-import SquareIcon from "../Icons/Square";
-import TriangleIcon from "../Icons/Triangle";
+import CircleIcon from "./Icons/Circle";
+import SquareIcon from "./Icons/Square";
+import TriangleIcon from "./Icons/Triangle";
 
 const LINES_RADIUS = 30;
 const SHAPES_RADIUS = 45;
@@ -71,7 +71,7 @@ export default function Leyte({
   const lineRefs = useRef([...Array(9)].map(() => createRef()));
   const shapesRefs = useRef([...Array(6)].map(() => createRef()));
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);

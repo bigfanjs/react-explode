@@ -3,19 +3,21 @@ import React, {
   useRef,
   useEffect,
   useCallback,
-  createRef
+  createRef,
+  useMemo
 } from "react";
 import gsap, { Power4, Expo } from "gsap";
 
-import Seahouse, { length as SeahouseLength } from "../Icons/Seahorse";
-import Hexagon from "../Icons/Hexagon";
-import SineWave, { length as SineWaveLength } from "../Icons/SineWave";
-import Triangle from "../Icons/Triangle";
+import Seahouse, { length as SeahouseLength } from "./Icons/Seahorse";
+import Hexagon from "./Icons/Hexagon";
+import SineWave, { length as SineWaveLength } from "./Icons/SineWave";
+import Triangle from "./Icons/Triangle";
 
 let TIME_LINE;
 
 const HEXAGON_WIDTH = 30;
 const HEXAGON_HEIGHT = 32;
+const SINE_WAVE_WIDTHS = [37.5, 50];
 const HEXAGON_STROKE_WIDTH = 10;
 const SINE_WAVE_STROKE_WIDTHS = [10, 5];
 const angle = (2 * Math.PI) / 3;
@@ -39,13 +41,13 @@ export default function Mindoro({
     [...Array(3)].map(() => ({ svg: createRef(), shape: createRef() }))
   );
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
   const hexagonStrokeWidth = (HEXAGON_STROKE_WIDTH * 100) / 400;
-  const SineWaveStrokeWidths = SINE_WAVE_STROKE_WIDTHS.map(
+  const sineWaveStrokeWidths = SINE_WAVE_STROKE_WIDTHS.map(
     strokewidth => (strokewidth * 100) / 400
   );
 
@@ -153,7 +155,7 @@ export default function Mindoro({
       });
 
       timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": SineWaveStrokeWidths[i % 2] }
+        attr: { "stroke-width": sineWaveStrokeWidths[i % 2] }
       });
 
       timeline.to(
@@ -194,7 +196,7 @@ export default function Mindoro({
     });
 
     return timelines;
-  }, []);
+  }, [sineWaveStrokeWidths]);
 
   const animateTriangles = useCallback(() => {
     const timelines = [];
@@ -300,9 +302,7 @@ export default function Mindoro({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div
-      style={{ width: size, height: size, border: "1px solid #fff", ...style }}
-    >
+    <div style={{ width: size, height: size, ...style }}>
       {seahouseRefs.current.map((ref, i) => (
         <Seahouse
           key={i}
@@ -323,8 +323,8 @@ export default function Mindoro({
         Array.from(Array(4)).map((_, j) => (
           <SineWave
             key={i}
-            width={j % 2 ? 150 : 200}
-            strokeWidth={SineWaveStrokeWidths[j % 2]}
+            width={`${SINE_WAVE_WIDTHS[j % 2]}%`}
+            strokeWidth={sineWaveStrokeWidths[j % 2]}
             shapeRef={sinewavesRefs.current[j + 4 * i]}
             dasharray={`0 ${SineWaveLength}`}
             color="#2ab7ca"

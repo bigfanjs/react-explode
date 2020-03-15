@@ -6,10 +6,10 @@ import React, {
   createRef
 } from "react";
 import gsap, { Power4, Expo } from "gsap";
-import CurveLine from "../Icons/CurveLine";
-import Circle from "../Icons/Circle";
-import Square from "../Icons/Square";
-import Triangle from "../Icons/Triangle";
+import CurveLine from "./Icons/CurveLine";
+import Circle from "./Icons/Circle";
+import Square from "./Icons/Square";
+import Triangle from "./Icons/Triangle";
 
 let TIME_LINE = null;
 const RADIUSES = [9, 10, 11, 12];
@@ -38,7 +38,7 @@ export default function Lubang({
     [...Array(3)].map(() => ({ inner: createRef(), outer: createRef() }))
   );
 
-  const [prevSize, setPrevSize] = useState(400);
+  const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
