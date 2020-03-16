@@ -10,16 +10,18 @@ import gsap, { Power4, Expo } from "gsap";
 
 import Seahouse, { length as SeahouseLength } from "./Icons/Seahorse";
 import Hexagon from "./Icons/Hexagon";
-import SineWave, { length as SineWaveLength } from "./Icons/SineWave";
+import SineWave, { length as sineWaveTotalLength } from "./Icons/SineWave";
 import Triangle from "./Icons/Triangle";
+import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
 let TIME_LINE;
 
+const SINE_WAVE_LENGTH = 30;
 const HEXAGON_WIDTH = 30;
 const HEXAGON_HEIGHT = 32;
 const SINE_WAVE_WIDTHS = [37.5, 50];
 const HEXAGON_STROKE_WIDTH = 10;
-const SINE_WAVE_STROKE_WIDTHS = [10, 5];
+const SINE_WAVE_STROKE_WIDTHS = [1.5, 2.5];
 const angle = (2 * Math.PI) / 3;
 const TRIANGLE_RADIUS = 30;
 const TRIANGLE_SIZE = 6;
@@ -47,9 +49,14 @@ export default function Mindoro({
   const [prevRepeat, setPrevRepeat] = useState(0);
 
   const hexagonStrokeWidth = (HEXAGON_STROKE_WIDTH * 100) / 400;
-  const sineWaveStrokeWidths = SINE_WAVE_STROKE_WIDTHS.map(
-    strokewidth => (strokewidth * 100) / 400
-  );
+  const SineWavelength = useMemo(() => (SINE_WAVE_LENGTH * prevSize) / 100, [
+    prevSize
+  ]);
+  const animateSineWaveStroke = useGSAPAnimateStroke({
+    length: SineWavelength,
+    totalLength: sineWaveTotalLength,
+    speed: 1.5
+  });
 
   const animateSeahorse = useCallback(() => {
     const timelines = [];
@@ -146,57 +153,17 @@ export default function Mindoro({
     sinewavesRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline();
 
-      timeline.set(ref.current, {
-        attr: {
-          "stroke-dasharray": `0 ${SineWaveLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
-        }
+      animateSineWaveStroke({
+        elem: ref.current,
+        strokeWidth: SINE_WAVE_STROKE_WIDTHS[i % 2],
+        timeline
       });
-
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": sineWaveStrokeWidths[i % 2] }
-      });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `100 ${SineWaveLength - 100}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.5
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${SineWaveLength}`,
-                "stroke-dashoffset": SineWaveLength * -1
-              },
-              duration: 0.7
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.3"
-      );
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [sineWaveStrokeWidths]);
+  }, [animateSineWaveStroke]);
 
   const animateTriangles = useCallback(() => {
     const timelines = [];
@@ -274,7 +241,7 @@ export default function Mindoro({
 
     TIME_LINE.add(seahorseTimelines, 0);
     TIME_LINE.add(hexagonTimeline, 0.3);
-    TIME_LINE.add(sineWaveTimelines, 0.4);
+    TIME_LINE.add(sineWaveTimelines, 0.2);
     TIME_LINE.add(trianglesTimelines, 0.75);
   }, [
     prevRepeat,
@@ -324,9 +291,9 @@ export default function Mindoro({
           <SineWave
             key={i}
             width={`${SINE_WAVE_WIDTHS[j % 2]}%`}
-            strokeWidth={sineWaveStrokeWidths[j % 2]}
+            strokeWidth={0}
             shapeRef={sinewavesRefs.current[j + 4 * i]}
-            dasharray={`0 ${SineWaveLength}`}
+            dasharray={`0 ${sineWaveTotalLength}`}
             color="#2ab7ca"
             style={{
               position: "absolute",
