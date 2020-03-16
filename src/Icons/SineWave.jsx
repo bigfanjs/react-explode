@@ -20,6 +20,7 @@ function SineWave({
         ref={shapeRef}
         strokeDasharray={dasharray}
         fill="none"
+        strokeLinecap="round"
       />
     </svg>
   );
