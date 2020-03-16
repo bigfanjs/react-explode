@@ -29,6 +29,7 @@ function Wave2(
         strokeWidth={strokeWidth}
         strokeDasharray={dasharray}
         d="M58.9,4.7c0,0,1.8,6.4-3.1,8C43.8,16.5,25-4,12.7,1.6C3.2,6,1.1,28.7,1.1,28.7"
+        strokeLinecap="round"
       />
     </svg>
   );
