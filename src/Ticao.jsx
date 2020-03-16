@@ -8,9 +8,11 @@ import React, {
 } from "react";
 import gsap, { Power4 } from "gsap";
 import Circle from "./Icons/Circle";
+import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
 const LINES_LENGTH = 4;
-const LINE_LENGTH = 60;
+const LINE_LENGTH = 25;
+const LINE_TOTAL_LENGTH = 60;
 const CIRCLES_LENGTH = 4;
 const CIRCLE_SIZE = 20;
 const LINES_SIZE = 25;
@@ -92,21 +94,22 @@ function Unit({ size, index, circlesRefs, circleLinesRefs }) {
   );
 }
 
-function Line({ size, index, lineRef }) {
+function Line({ size, index, lineRef, lineTotalLength }) {
   const center = size / 2;
-  const lineLength = useMemo(() => (size * LINE_LENGTH) / 100, [size]);
   const circleSize = useMemo(() => (size * CIRCLE_SIZE) / 100, [size]);
   const circleRadius = useMemo(() => (size * CIRCLE_RADIUS) / 100, [size]);
   const circleCenter = circleSize / 2;
   const radius = circleRadius - circleCenter + 5;
   const x =
-    center - lineLength / 2 + Math.cos(PREFIX_ANGLE + index * ANGLE) * radius;
+    center -
+    lineTotalLength / 2 +
+    Math.cos(PREFIX_ANGLE + index * ANGLE) * radius;
   const y = center - 5 / 2 + Math.sin(PREFIX_ANGLE + index * ANGLE) * radius;
 
   return (
     <svg
       key={index}
-      width={lineLength}
+      width={lineTotalLength}
       height={5}
       style={{
         top: y,
@@ -118,7 +121,7 @@ function Line({ size, index, lineRef }) {
       <line
         ref={lineRef}
         strokeWidth={0}
-        strokeDasharray={`0 ${lineLength}`}
+        strokeDasharray={`0 ${lineTotalLength}`}
         x1="0"
         y1="50%"
         x2="100%"
@@ -151,69 +154,32 @@ export default function Ticao({
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const lineLength = useMemo(() => (size * LINE_LENGTH) / 100, [size]);
+  const lineTotalLength = useMemo(() => (prevSize * LINE_TOTAL_LENGTH) / 100, [
+    prevSize
+  ]);
   const lineStrokeWidth = useMemo(() => (prevSize * LINE_STROKE_WIDTH) / 100, [
     prevSize
   ]);
-  const linesSize = useMemo(() => (size * LINES_SIZE) / 100, [size]);
+  const linesSize = useMemo(() => (prevSize * LINES_SIZE) / 100, [prevSize]);
+  const lineLength = useMemo(() => (prevSize * LINE_LENGTH) / 100, [prevSize]);
+  const animateStroke = useGSAPAnimateStroke({
+    length: lineLength,
+    totalLength: lineTotalLength,
+    strokeWidth: lineStrokeWidth,
+    speed: 1.3
+  });
 
   const animateLines = useCallback(() => {
     const timelines = [];
 
     linesRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline({ delay: 0.07 * i });
-
-      timeline.set(ref.current, {
-        attr: {
-          "stroke-dasharray": `0 ${lineLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
-        }
-      });
-
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": lineStrokeWidth }
-      });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `100 ${lineLength - 100}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.5
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${lineLength}`,
-                "stroke-dashoffset": lineLength * -1
-              },
-              duration: 0.7
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.3"
-      );
-
+      animateStroke({ elem: ref.current, timeline });
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [lineLength, lineStrokeWidth]);
+  }, [animateStroke]);
 
   const animateCircles = useCallback(() => {
     const timelines = [];
@@ -344,7 +310,7 @@ export default function Ticao({
           lineRef={ref}
           size={prevSize}
           strokeWidth={lineStrokeWidth}
-          lineLength={lineLength}
+          lineTotalLength={lineTotalLength}
         />
       ))}
       {Array.from(Array(4)).map((_, i) => (
