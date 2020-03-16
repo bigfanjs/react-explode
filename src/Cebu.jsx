@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, Fragment } from "react";
+import gsap, { Power1, Power4 } from "gsap";
 import Shape from "./Icons/Shape";
 import Circle from "./Icons/Circle";
-import gsap, { Power1, Power4 } from "gsap";
 
 const SHAPES = [];
 const CIRCLES = [];
@@ -136,14 +136,7 @@ export default function Cebu({
   ]);
 
   return (
-    <div
-      style={{
-        width: prevSize,
-        height: prevSize,
-        position: "relative",
-        ...style
-      }}
-    >
+    <div style={{ width: prevSize, height: prevSize, ...style }}>
       {[...Array(4)].map((_, i) => {
         return (
           <Fragment key={i}>
