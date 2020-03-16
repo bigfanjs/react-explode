@@ -3,11 +3,13 @@ import React, {
   useRef,
   useCallback,
   useEffect,
-  createRef
+  createRef,
+  useMemo
 } from "react";
 import gsap, { Power1, Power4, Expo } from "gsap";
 import Wave2, { length as WaveLength } from "./Icons/Wave2";
 import Circle from "./Icons/Circle";
+import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
 let TIME_LINE;
 const unicornColors = [
@@ -30,7 +32,7 @@ const CIRCLES = [
   { pos: [28, 80], size: 7, delay: 1 }
 ];
 const CIRCLES_LENGTH = CIRCLES.length;
-const LINE_STROKE_WIDTH = 2;
+const LINE_STROKE_WIDTH = 1;
 const CIRCLE_STROKE_WIDTH = 2;
 
 export default function Siargao({
@@ -56,7 +58,12 @@ export default function Siargao({
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const lineStrokeWidth = (LINE_STROKE_WIDTH * 100) / prevSize;
+  const animateStroke = useGSAPAnimateStroke({
+    length: 50,
+    totalLength: WaveLength,
+    strokeWidth: LINE_STROKE_WIDTH,
+    speed: 1.5
+  });
 
   const animateLines = useCallback(() => {
     const timelines = [];
@@ -64,57 +71,14 @@ export default function Siargao({
     linesRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline({ delay: (i % 4) * 0.03 });
 
-      timeline.set(ref.current, {
-        attr: {
-          "stroke-dasharray": `0 ${WaveLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
-        }
-      });
-
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": lineStrokeWidth }
-      });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `50 ${WaveLength - 50}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.6
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${WaveLength}`,
-                "stroke-dashoffset": WaveLength * -1
-              },
-              duration: 0.8
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.5"
-      );
+      animateStroke({ elem: ref.current, timeline });
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [lineStrokeWidth]);
+  }, [animateStroke]);
+
   const animateCircles = useCallback(() => {
     const timelines = [];
     const strokeWidth = (prevSize * CIRCLE_STROKE_WIDTH) / 100;
@@ -199,7 +163,7 @@ export default function Siargao({
           shapeRef={ref}
           width="68%"
           height="50%"
-          strokeWidth={lineStrokeWidth}
+          strokeWidth={0}
           dasharray={`0 ${WaveLength}`}
           color={unicornColors[i]}
           style={{
