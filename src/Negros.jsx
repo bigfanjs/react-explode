@@ -7,12 +7,14 @@ import React, {
   useMemo
 } from "react";
 import gsap, { Power4 } from "gsap";
-import SineWave, { length as SineWaveLength } from "./Icons/SineWave";
+import SineWave, { length as sineWaveTotalLength } from "./Icons/SineWave";
 import Circle from "./Icons/Circle";
 import Stick, { length as StickLength } from "./Icons/Stick";
+import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
 // animation configs:
 let TIME_LINE;
+const SINE_WAVE_LENGTH = 25;
 const SINE_WAVE_WIDTHS = [35, 42.5];
 const SINE_WAVE_HEIGHT = 3.75;
 const INIT_RADIUS = 6;
@@ -49,9 +51,6 @@ export default function Negros({
   const angle = Math.PI / 2;
   const stickAngle = (2 * Math.PI) / 9;
   const prefixAngle = Math.PI / 4;
-  const sineWaveStrokeWidths = SINE_WAVE_STROKE_WIDTHS.map(strokewidth =>
-    Math.min((strokewidth * prevSize) / 100, 2)
-  );
   const lineStrokeWidth = useMemo(() => (LINE_STROKE_WIDTH * prevSize) / 100, [
     prevSize
   ]);
@@ -201,63 +200,29 @@ export default function Negros({
     return timelines;
   }, [prevSize]);
 
+  const animateSineWaveStroke = useGSAPAnimateStroke({
+    length: 100,
+    totalLength: sineWaveTotalLength,
+    speed: 1.3
+  });
+
   const animateSinewaves = useCallback(() => {
     const timelines = [];
 
     sinewavesRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline({ delay: 0.05 * (i % 2) });
 
-      timeline.set(ref.current, {
-        attr: {
-          "stroke-dasharray": `0 ${SineWaveLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
-        }
+      animateSineWaveStroke({
+        elem: ref.current,
+        timeline,
+        strokeWidth: SINE_WAVE_STROKE_WIDTHS[i % 2]
       });
-
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": sineWaveStrokeWidths[i % 2] }
-      });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `100 ${SineWaveLength - 100}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.4
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${SineWaveLength}`,
-                "stroke-dashoffset": SineWaveLength * -1
-              },
-              duration: 0.6
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.3"
-      );
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [sineWaveStrokeWidths]);
+  }, [animateSineWaveStroke]);
 
   const explode = useCallback(() => {
     const lineTimeline = animateLine();
@@ -326,9 +291,9 @@ export default function Negros({
             key={j + 2 * i}
             width={`${SINE_WAVE_WIDTHS[j % 2]}%`}
             height={`${SINE_WAVE_HEIGHT}%`}
-            strokeWidth={SINE_WAVE_STROKE_WIDTHS[j % 2]}
+            strokeWidth={0}
             shapeRef={sinewavesRefs.current[j + 2 * i]}
-            dasharray={`0 ${SineWaveLength}`}
+            dasharray={`0 ${sineWaveTotalLength}`}
             color="#2ab7ca"
             style={{
               position: "absolute",

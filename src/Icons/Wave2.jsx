@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 
-export const length = 86;
+export const length = 86.5;
 
 function Wave2(
   {

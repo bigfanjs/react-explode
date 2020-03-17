@@ -3,7 +3,8 @@ import React, {
   useEffect,
   useCallback,
   createRef,
-  useRef
+  useRef,
+  useMemo
 } from "react";
 import gsap, { Power4, Power1, Power2 } from "gsap";
 import CircleIcon from "./Icons/Circle";
@@ -14,6 +15,7 @@ const LINES_RADIUS = 30;
 const SHAPES_RADIUS = 45;
 const CIRCLE_STROKE_WIDTH = 0.4;
 const SHAPE_SIZE = 6;
+const CIRCLES_LENGTH = 7;
 
 let TIME_LINE = null;
 
@@ -77,19 +79,19 @@ export default function Leyte({
   const [prevRepeat, setPrevRepeat] = useState(0);
 
   const center = prevSize / 2;
-  const strokeWidth = (size * CIRCLE_STROKE_WIDTH) / 100;
+  const strokeWidth = useMemo(() => (prevSize * CIRCLE_STROKE_WIDTH) / 100, [
+    prevSize
+  ]);
 
-  const explode = useCallback(() => {
+  const animateCircles = useCallback(() => {
     const timelines = [];
-    const lineTimelines = [];
-    const shapesTimelines = [];
-    const shapesSize = ((SHAPE_SIZE / 2) * prevSize) / 100;
 
     circleRefs.current.forEach((ref, i) => {
       if (i > 1) {
         const timeline = gsap.timeline({ delay: (5 - i) * 0.07 });
         const radius = 5 + 2 * i;
         const circumference = radius * 2 * Math.PI;
+
         timeline.set(ref.current, {
           attr: { "stroke-dashoffset": circumference }
         });
@@ -111,7 +113,7 @@ export default function Leyte({
         timeline.fromTo(
           ref.current,
           0.3,
-          { attr: { "stroke-width": strokeWidth - 0.1 * (7 - i) } },
+          { attr: { "stroke-width": 2 - 0.1 * (7 - i) } },
           { attr: { "stroke-width": 0 } },
           "-=0.2"
         );
@@ -119,14 +121,18 @@ export default function Leyte({
       } else if (i === 1) {
         const timeline = gsap.timeline();
 
-        timeline.set(ref.current, { scale: 0, attr: { "stroke-width": 15 } });
+        timeline.set(ref.current, {
+          scale: 0,
+          opacity: 1,
+          attr: { "stroke-width": 15 }
+        });
         timeline.fromTo(
           ref.current,
           0.6,
           { scale: 0, transformOrigin: "center", attr: { "stroke-width": 15 } },
           {
             scale: 1,
-            attr: { "stroke-width": strokeWidth - 0.1 * (7 - i) },
+            attr: { "stroke-width": 2 - 0.1 * (7 - i) },
             ease: Power4.easeOut
           }
         );
@@ -142,7 +148,11 @@ export default function Leyte({
       } else {
         const timeline = gsap.timeline({ delay: 0.8 });
 
-        timeline.set(ref.current, { scale: 0, attr: { "stroke-width": 15 } });
+        timeline.set(ref.current, {
+          scale: 0,
+          opacity: 1,
+          attr: { "stroke-width": 15 }
+        });
         timeline.fromTo(
           ref.current,
           0.5,
@@ -167,9 +177,13 @@ export default function Leyte({
       }
     });
 
-    // animate lines:
+    return timelines;
+  }, []);
+
+  const animateLines = useCallback(() => {
+    const timelines = [];
+
     lineRefs.current.forEach((ref, i) => {
-      // const prefixAngle = 0;
       const radius = (prevSize * LINES_RADIUS) / 100;
       const angle = (2 * Math.PI) / 9;
       const x = center + radius * Math.cos(i * angle);
@@ -194,17 +208,22 @@ export default function Leyte({
           "-=0.6"
         );
 
-      lineTimelines.push(timeline);
+      timelines.push(timeline);
     });
 
-    // animate shapes:
+    return timelines;
+  }, [center, prevSize]);
+
+  const animateshapes = useCallback(() => {
+    const timelines = [];
+    const shapesSize = ((SHAPE_SIZE / 2) * prevSize) / 100;
+
     shapesRefs.current.forEach((ref, i) => {
-      const timeline = gsap.timeline({
-        delay: (i % 3) * 0.1
-      });
+      const timeline = gsap.timeline({ delay: (i % 3) * 0.1 });
       const radius = (prevSize * SHAPES_RADIUS) / 100;
 
-      timeline.set(ref.current, { opacity: 0 });
+      timeline.set(ref.current, { opacity: 0, x: -shapesSize });
+
       timeline.to(ref.current, 1.3, {
         keyframes: [
           { x: -shapesSize, opacity: 0 },
@@ -224,8 +243,16 @@ export default function Leyte({
         "-=0.8"
       );
 
-      shapesTimelines.push(timeline);
+      timelines.push(timeline);
     });
+
+    return timelines;
+  }, [prevSize]);
+
+  const explode = useCallback(() => {
+    const circlesTimelines = animateCircles();
+    const linesTimelines = animateLines();
+    const shapesTimelines = animateshapes();
 
     TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
@@ -237,8 +264,8 @@ export default function Leyte({
     });
 
     TIME_LINE.add(shapesTimelines, 0);
-    TIME_LINE.add(timelines, 0.5);
-    TIME_LINE.add(lineTimelines, 0.5);
+    TIME_LINE.add(circlesTimelines, 0.5);
+    TIME_LINE.add(linesTimelines, 0.5);
   }, [
     prevRepeat,
     prevDelay,
@@ -246,9 +273,9 @@ export default function Leyte({
     onComplete,
     onStart,
     onRepeat,
-    prevSize,
-    center,
-    strokeWidth
+    animateCircles,
+    animateLines,
+    animateshapes
   ]);
 
   useEffect(() => {
@@ -270,14 +297,14 @@ export default function Leyte({
 
   return (
     <div style={{ width: size, height: size, ...style }}>
-      {Array.from(Array(7)).map((_, i) => (
+      {Array.from(Array(CIRCLES_LENGTH)).map((_, i) => (
         <CircleIcon
           key={i}
           shapeRef={circleRefs.current[i]}
           radius={5 + 2 * (i === 0 ? i + 1 : i)}
           fill="none"
           color={i > 0 ? " #2ab7ca" : "#fe4a49"}
-          strokeWidth={strokeWidth - 0.1 * (7 - i)}
+          strokeWidth={2 - 0 * (CIRCLES_LENGTH - i)}
           style={{
             position: "absolute",
             width: "100%",
@@ -305,25 +332,23 @@ export default function Leyte({
         ))}
       </svg>
       {Array.from(Array(2)).map((_, i) =>
-        groups[i].map((Shape, j) => {
-          return (
-            <Shape
-              key={j + 3 * i}
-              innerRef={shapesRefs.current[j + 3 * i]}
-              pos={positions[i]}
-              strokeWidth={strokeWidth}
-              stroke="#5ADFFF"
-              style={{
-                position: "absolute",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: `${SHAPE_SIZE}%`,
-                height: `${SHAPE_SIZE}%`,
-                opacity: 0
-              }}
-            />
-          );
-        })
+        groups[i].map((Shape, j) => (
+          <Shape
+            key={j + 3 * i}
+            innerRef={shapesRefs.current[j + 3 * i]}
+            pos={positions[i]}
+            strokeWidth={strokeWidth}
+            stroke="#5ADFFF"
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: `${SHAPE_SIZE}%`,
+              height: `${SHAPE_SIZE}%`,
+              opacity: 0
+            }}
+          />
+        ))
       )}
     </div>
   );

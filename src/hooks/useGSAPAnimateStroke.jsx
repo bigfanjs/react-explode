@@ -1,7 +1,7 @@
-import { Power4 } from "gsap";
+import { Power1, Power4 } from "gsap";
 import { useCallback, useMemo } from "react";
 
-const durations = [0.1, 0.5, 0.3, 0.1];
+const durations = [0.05, 0.3, 0.6, 0.05];
 
 export default function useGSAPAnimateStroke({ length, totalLength, speed }) {
   const speeds = useMemo(() => durations.map(duration => speed * duration), [
@@ -13,44 +13,47 @@ export default function useGSAPAnimateStroke({ length, totalLength, speed }) {
       timeline.set(elem, {
         attr: {
           "stroke-dasharray": `0 ${totalLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
+          "stroke-dashoffset": 0
         }
       });
 
       timeline.fromTo(
         elem,
-        speeds[1],
-        {
-          attr: {
-            "stroke-width": 0,
-            "stroke-dasharray": `0 ${totalLength}`,
-            "stroke-dashoffset": 0
-          }
-        },
-        {
-          attr: {
-            "stroke-dasharray": `${length} ${totalLength - length}`,
-            "stroke-dashoffset": -20,
-            "stroke-width": strokeWidth
-          },
-          ease: Power4.easeIn
-        }
+        speeds[0],
+        { attr: { "stroke-width": 0 } },
+        { attr: { "stroke-width": strokeWidth } }
       );
 
-      timeline.to(elem, speeds[2], {
-        attr: {
-          "stroke-dasharray": `0 ${totalLength}`,
-          "stroke-dashoffset": totalLength * -1
+      timeline.to(
+        elem,
+        {
+          keyframes: [
+            {
+              attr: {
+                "stroke-dasharray": `${length} ${totalLength - length}`,
+                "stroke-dashoffset": -20
+              },
+              duration: speeds[1],
+              ease: Power4.easeIn
+            },
+            {
+              attr: {
+                "stroke-dasharray": `0 ${totalLength}`,
+                "stroke-dashoffset": totalLength * -1
+              },
+              duration: speeds[2],
+              ease: Power4.easeOut
+            }
+          ]
         },
-        ease: Power4.easeOut
-      });
+        "<"
+      );
 
       timeline.to(
         elem,
         speeds[3],
-        { attr: { "stroke-width": 0 }, ease: Power4.easeInOut },
-        "-=0.3"
+        { attr: { "stroke-width": 0 } },
+        `-=${(speeds[1] + speeds[2]) * 0.3}`
       );
     },
     [length, speeds, totalLength]

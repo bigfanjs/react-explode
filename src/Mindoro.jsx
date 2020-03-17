@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import gsap, { Power4, Expo } from "gsap";
 
-import Seahouse, { length as SeahouseLength } from "./Icons/Seahorse";
+import Seahouse, { length as seahouseTotalLength } from "./Icons/Seahorse";
 import Hexagon from "./Icons/Hexagon";
 import SineWave, { length as sineWaveTotalLength } from "./Icons/SineWave";
 import Triangle from "./Icons/Triangle";
@@ -55,7 +55,13 @@ export default function Mindoro({
   const animateSineWaveStroke = useGSAPAnimateStroke({
     length: SineWavelength,
     totalLength: sineWaveTotalLength,
-    speed: 1.5
+    speed: 1.1
+  });
+
+  const animateSeahorseStroke = useGSAPAnimateStroke({
+    length: 40,
+    totalLength: seahouseTotalLength,
+    speed: 1.2
   });
 
   const animateSeahorse = useCallback(() => {
@@ -64,57 +70,13 @@ export default function Mindoro({
     seahouseRefs.current.forEach(ref => {
       const timeline = gsap.timeline();
 
-      timeline.set(ref.current, {
-        attr: {
-          "stroke-dasharray": `0 ${SeahouseLength}`,
-          "stroke-dashoffset": 0,
-          "stroke-width": 0
-        }
-      });
-
-      timeline.to(ref.current, 0.2, {
-        attr: { "stroke-width": 1 }
-      });
-
-      timeline.to(
-        ref.current,
-        {
-          keyframes: [
-            {
-              attr: {
-                "stroke-dasharray": `40 ${SeahouseLength - 40}`,
-                "stroke-dashoffset": -20
-              },
-              duration: 0.5
-            },
-            {
-              attr: {
-                "stroke-dasharray": `0 ${SeahouseLength}`,
-                "stroke-dashoffset": SeahouseLength * -1
-              },
-              duration: 0.7
-            }
-          ],
-          ease: Power4.easeInOut
-        },
-        "-=0.2"
-      );
-
-      timeline.to(
-        ref.current,
-        0.3,
-        {
-          attr: { "stroke-width": 0 },
-          ease: Power4.easeInOut
-        },
-        "-=0.3"
-      );
+      animateSeahorseStroke({ elem: ref.current, strokeWidth: 1, timeline });
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, []);
+  }, [animateSeahorseStroke]);
 
   const animateHexagon = useCallback(() => {
     const timeline = gsap.timeline();
@@ -241,7 +203,7 @@ export default function Mindoro({
 
     TIME_LINE.add(seahorseTimelines, 0);
     TIME_LINE.add(hexagonTimeline, 0.3);
-    TIME_LINE.add(sineWaveTimelines, 0.2);
+    TIME_LINE.add(sineWaveTimelines, 0.5);
     TIME_LINE.add(trianglesTimelines, 0.75);
   }, [
     prevRepeat,

@@ -25,14 +25,14 @@ const unicornColors = [
 
 const LINES_LENGTH = 8;
 const CIRCLES = [
-  { pos: [50, 50], size: 50, delay: 0.7 },
-  { pos: [68, 15], size: 10, delay: 0.9 },
-  { pos: [65, 20], size: 7, delay: 1 },
-  { pos: [32, 84], size: 10, delay: 0.9 },
-  { pos: [28, 80], size: 7, delay: 1 }
+  { pos: [50, 50], size: 50, delay: 0.35 },
+  { pos: [68, 15], size: 10, delay: 0.6 },
+  { pos: [65, 20], size: 7, delay: 0.7 },
+  { pos: [32, 84], size: 10, delay: 0.6 },
+  { pos: [28, 80], size: 7, delay: 0.7 }
 ];
 const CIRCLES_LENGTH = CIRCLES.length;
-const LINE_STROKE_WIDTH = 1;
+const LINE_STROKE_WIDTH = 0.8;
 const CIRCLE_STROKE_WIDTH = 2;
 
 export default function Siargao({
@@ -59,10 +59,9 @@ export default function Siargao({
   const [prevRepeat, setPrevRepeat] = useState(0);
 
   const animateStroke = useGSAPAnimateStroke({
-    length: 50,
+    length: 30,
     totalLength: WaveLength,
-    strokeWidth: LINE_STROKE_WIDTH,
-    speed: 1.5
+    speed: 1.3
   });
 
   const animateLines = useCallback(() => {
@@ -71,7 +70,11 @@ export default function Siargao({
     linesRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline({ delay: (i % 4) * 0.03 });
 
-      animateStroke({ elem: ref.current, timeline });
+      animateStroke({
+        elem: ref.current,
+        timeline,
+        strokeWidth: LINE_STROKE_WIDTH
+      });
 
       timelines.push(timeline);
     });

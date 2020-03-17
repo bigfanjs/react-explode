@@ -11,7 +11,7 @@ import Circle from "./Icons/Circle";
 import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
 const LINES_LENGTH = 4;
-const LINE_LENGTH = 25;
+const LINE_LENGTH = 30;
 const LINE_TOTAL_LENGTH = 60;
 const CIRCLES_LENGTH = 4;
 const CIRCLE_SIZE = 20;
@@ -165,7 +165,6 @@ export default function Ticao({
   const animateStroke = useGSAPAnimateStroke({
     length: lineLength,
     totalLength: lineTotalLength,
-    strokeWidth: lineStrokeWidth,
     speed: 1.3
   });
 
@@ -174,12 +173,16 @@ export default function Ticao({
 
     linesRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline({ delay: 0.07 * i });
-      animateStroke({ elem: ref.current, timeline });
+      animateStroke({
+        elem: ref.current,
+        timeline,
+        strokeWidth: lineStrokeWidth
+      });
       timelines.push(timeline);
     });
 
     return timelines;
-  }, [animateStroke]);
+  }, [animateStroke, lineStrokeWidth]);
 
   const animateCircles = useCallback(() => {
     const timelines = [];
@@ -269,8 +272,8 @@ export default function Ticao({
     });
 
     TIME_LINE.add(linesRefs, 0);
-    TIME_LINE.add(circlesRefs, 0.4);
-    TIME_LINE.add(circleLinesRefs, 0.4);
+    TIME_LINE.add(circlesRefs, 0.15);
+    TIME_LINE.add(circleLinesRefs, 0.15);
   }, [
     animateCircles,
     animateLines,
