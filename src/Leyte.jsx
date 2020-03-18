@@ -222,25 +222,28 @@ export default function Leyte({
       const timeline = gsap.timeline({ delay: (i % 3) * 0.1 });
       const radius = (prevSize * SHAPES_RADIUS) / 100;
 
-      timeline.set(ref.current, { opacity: 0, x: -shapesSize });
-
-      timeline.to(ref.current, 1.3, {
-        keyframes: [
-          { x: -shapesSize, opacity: 0 },
-          {
-            x: -shapesSize + radius * (i > 2 ? 1 : -1),
-            opacity: 1,
-            ease: Power2.easeOut
-          },
-          { x: -shapesSize, opacity: 0, ease: Power2.easeIn }
-        ]
-      });
       timeline.fromTo(
         ref.current,
-        1,
+        0.4,
+        { x: -shapesSize, opacity: 0 },
+        {
+          x: -shapesSize + radius * (i > 2 ? 1 : -1),
+          opacity: 1,
+          ease: Power2.easeOut
+        }
+      );
+      timeline.to(ref.current, 0.4, {
+        x: -shapesSize,
+        opacity: 0,
+        ease: Power2.easeIn
+      });
+
+      timeline.fromTo(
+        ref.current,
+        0.8,
         { rotate: 0 },
-        { rotate: 250, ease: Power2.easeOut },
-        "-=0.8"
+        { rotate: 250, ease: Power1.easeInOut },
+        "-=0.7"
       );
 
       timelines.push(timeline);
@@ -264,8 +267,8 @@ export default function Leyte({
     });
 
     TIME_LINE.add(shapesTimelines, 0);
-    TIME_LINE.add(circlesTimelines, 0.5);
-    TIME_LINE.add(linesTimelines, 0.5);
+    TIME_LINE.add(circlesTimelines, 0.1);
+    TIME_LINE.add(linesTimelines, 0.1);
   }, [
     prevRepeat,
     prevDelay,
@@ -326,7 +329,7 @@ export default function Leyte({
             y2={center}
             ref={lineRefs.current[i]}
             key={i}
-            strokeWidth={strokeWidth}
+            strokeWidth={2}
             stroke="#fe4a49"
           />
         ))}
@@ -337,7 +340,7 @@ export default function Leyte({
             key={j + 3 * i}
             innerRef={shapesRefs.current[j + 3 * i]}
             pos={positions[i]}
-            strokeWidth={strokeWidth}
+            strokeWidth={1}
             stroke="#5ADFFF"
             style={{
               position: "absolute",
