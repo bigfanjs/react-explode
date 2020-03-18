@@ -3,7 +3,8 @@ import React, {
   useEffect,
   useCallback,
   createRef,
-  useRef
+  useRef,
+  useMemo
 } from "react";
 import gsap, { Power4, Power1 } from "gsap";
 import Star from "./Icons/Star";
@@ -33,46 +34,21 @@ export default function Babuyan({
   const starPolygonRef = useRef();
   const polygonRef = useRef();
   const linesRefs = useRef([...Array(5)].map(() => createRef()));
-  //   const vShapesRef = useRef([...Array(5)].map(() => createRef()));
 
   const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
   const [prevRepeatDelay, setPrevRepeatDelay] = useState(0);
   const [prevRepeat, setPrevRepeat] = useState(0);
 
-  const center = size / 2;
-  const strokeWidth = Math.ceil((size * STROKE_WIDTH) / 100);
-  const angle = (2 * Math.PI) / 5;
-  const prefixAngle = Math.PI / 10;
-  const radius = (prevSize * RADIUS) / 100;
+  const center = useMemo(() => prevSize / 2, [prevSize]);
 
-  const explode = useCallback(() => {
-    const starTL = gsap.timeline();
+  const animatePentagon = useCallback(() => {
+    const timeline = gsap.timeline();
 
-    starTL.fromTo(
-      starRef.current,
-      0.5,
-      { scale: 0 },
-      { scale: 1, ease: Power1.easeIn }
-    );
-    starTL.fromTo(
-      starPolygonRef.current,
-      0.5,
-      { attr: { "stroke-dasharray": "177 2", "stroke-dashoffset": 88 } },
-      {
-        attr: { "stroke-dasharray": "0 179", "stroke-dashoffset": 0 },
-        ease: Power1.easeOut
-      },
-      "-=0.1"
-    );
-    // starTL.to(starRef.current, 1, { scale: 0.8 }, "-=0.2");
-
-    const pentagonTL = gsap.timeline();
-
-    pentagonTL.set(polygonRef.current, {
+    timeline.set(polygonRef.current, {
       attr: { "stroke-dasharray": "0 0 0 360", "stroke-dashoffset": "180" }
     });
-    pentagonTL.to(polygonRef.current, 1.5, {
+    timeline.to(polygonRef.current, 1, {
       keyframes: [
         {
           attr: {
@@ -90,35 +66,74 @@ export default function Babuyan({
           attr: { "stroke-dasharray": "0 360 0 0", "stroke-dashoffset": "360" }
         }
       ],
-      ease: Power4.easeOut
+      ease: Power4.easeInOut
     });
 
-    const lineTimelines = [];
+    return timeline;
+  }, []);
+
+  const animateStar = useCallback(() => {
+    const timeline = gsap.timeline();
+
+    timeline.fromTo(
+      starRef.current,
+      0.4,
+      { scale: 0, transformOrigin: "center" },
+      { scale: 1, ease: Power1.easeIn }
+    );
+    timeline.fromTo(
+      starPolygonRef.current,
+      0.4,
+      { attr: { "stroke-dasharray": "177 2", "stroke-dashoffset": 88 } },
+      {
+        attr: { "stroke-dasharray": "0 179", "stroke-dashoffset": 0 },
+        ease: Power1.easeOut
+      },
+      "-=0.1"
+    );
+
+    return timeline;
+  }, []);
+
+  const animateLines = useCallback(() => {
+    const timelines = [];
+    const angle = (2 * Math.PI) / 5;
+    const prefixAngle = Math.PI / 10;
+    const radius = (prevSize * RADIUS) / 100;
+
     linesRefs.current.forEach((ref, i) => {
+      const timeline = gsap.timeline();
+
       const x = center + radius * Math.cos(prefixAngle + i * angle);
       const y = center + radius * Math.sin(prefixAngle + i * angle);
       const start = { x2: x, y2: y };
       const end = { x1: x, y1: y };
 
-      const timeline = gsap.timeline();
-
       timeline
         .fromTo(
           ref.current,
-          0.8,
+          0.5,
           { attr: start },
           { attr: { x2: center, y2: center, ease: Power4.easeIn } }
         )
         .fromTo(
           ref.current,
-          0.8,
+          0.5,
           { attr: end },
           { attr: { x1: center, y1: center, ease: Power4.easeIn } },
-          "-=0.6"
+          "-=0.3"
         );
 
-      lineTimelines.push(timeline);
+      timelines.push(timeline);
     });
+
+    return timelines;
+  }, [center, prevSize]);
+
+  const explode = useCallback(() => {
+    const pentagonTimeline = animatePentagon();
+    const starTimeline = animateStar();
+    const linesTimelines = animateLines();
 
     TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
@@ -129,20 +144,19 @@ export default function Babuyan({
       onRepeat
     });
 
-    TIME_LINE.add(starTL, 0);
-    TIME_LINE.add(lineTimelines, "-=0.8");
-    TIME_LINE.add(pentagonTL, 0.4);
+    TIME_LINE.add(starTimeline, 0.1);
+    TIME_LINE.add(linesTimelines, 0.1);
+    TIME_LINE.add(pentagonTimeline, 0);
   }, [
-    angle,
     onRepeat,
     onStart,
     onComplete,
     prevRepeat,
     prevDelay,
     prevRepeatDelay,
-    center,
-    radius,
-    prefixAngle
+    animatePentagon,
+    animateStar,
+    animateLines
   ]);
 
   useEffect(() => {
@@ -160,27 +174,28 @@ export default function Babuyan({
   return (
     <div style={{ width: size, height: size, ...style }}>
       <Star
-        strokeWidth={strokeWidth}
+        strokeWidth={2}
         ref={starRef}
         starPolygonRef={starPolygonRef}
         strokeDasharray="177 2"
         strokeDashoffset="88"
-        color="#1da372"
+        color="#2ab7ca"
         style={{
           position: "absolute",
-          top: "46%",
-          left: "50%",
+          top: "1%",
+          left: "5%",
           width: `${STAR_SIZE}%`,
           height: `${STAR_SIZE}%`,
-          transform: "translate(-50%, -50%) scale(0)"
+          transform: "scale(0)",
+          transformOrigin: "center"
         }}
       />
       <Pentagon
-        strokeWidth={strokeWidth}
+        strokeWidth={2}
         polygonRef={polygonRef}
         strokeDashoffset="180"
         strokeDasharray="0 0 0 360"
-        color="#ff4d4d"
+        color="#fe4a49"
         style={{
           position: "absolute",
           top: "54%",
@@ -199,8 +214,8 @@ export default function Babuyan({
             y2={center}
             ref={linesRefs.current[i]}
             key={i}
-            strokeWidth={strokeWidth}
-            stroke="#8526b5"
+            strokeWidth={2}
+            stroke="#fed766"
           />
         ))}
       </svg>
