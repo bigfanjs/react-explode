@@ -10,15 +10,17 @@ import gsap, { Power4 } from "gsap";
 import ZigzagSine, { length as zigzagSineLength } from "./Icons/ZigzagSine";
 import HeartLine, { length as heartLineLength } from "./Icons/HeartLine";
 import Circle from "./Icons/Circle";
-import SineWave, { length as sineWaveLength } from "./Icons/SineWave";
+import SineWave, { length as sineWaveTotalLength } from "./Icons/SineWave";
+import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
-const CIRCLE_SIZE = 40;
+const SINE_WAVE_LENGTH = 25;
 const SINE_WAVE_SIZE = 50;
 const ZIGZAG_SIZE = 80;
 const ZIGZAG_STROKE_WIDTH = 0.24;
 const CIRCLE_STROKE_WIDTH = 0.35;
 const HEART_LINE_SIZE = 50;
 const HEART_LINE_STROKE_WIDTHS = [0.25, 0.1];
+
 let TIME_LINE;
 
 export default function Luzon({
@@ -49,6 +51,16 @@ export default function Luzon({
     () => HEART_LINE_STROKE_WIDTHS.map(sw => (prevSize * sw) / 100),
     [prevSize]
   );
+
+  const sineWaveLength = useMemo(() => (SINE_WAVE_LENGTH * prevSize) / 100, [
+    prevSize
+  ]);
+
+  const animateSineWaveStroke = useGSAPAnimateStroke({
+    length: 100,
+    totalLength: sineWaveTotalLength,
+    speed: 1.2
+  });
 
   const animateZigzag = useCallback(() => {
     const timelines = [];
@@ -189,38 +201,13 @@ export default function Luzon({
     waveRefs.current.forEach(ref => {
       const timeline = gsap.timeline();
 
-      timeline.set(ref.current, {
-        attr: {
-          "stroke-dasharray": `0 ${sineWaveLength}`,
-          "stroke-dashoffset": 0
-        }
-      });
-
-      timeline.to(ref.current, {
-        keyframes: [
-          {
-            attr: {
-              "stroke-dasharray": `100 ${sineWaveLength - 100}`,
-              "stroke-dashoffset": -20
-            },
-            duration: 0.4
-          },
-          {
-            attr: {
-              "stroke-dasharray": `0 ${sineWaveLength}`,
-              "stroke-dashoffset": sineWaveLength * -1
-            },
-            duration: 0.6
-          }
-        ],
-        ease: Power4.easeInOut
-      });
+      animateSineWaveStroke({ elem: ref.current, strokeWidth: 1, timeline });
 
       timelines.push(timeline);
     });
 
     return timelines;
-  }, []);
+  }, [animateSineWaveStroke]);
 
   const animateHeartLines = useCallback(() => {
     const timelines = [];
@@ -282,8 +269,8 @@ export default function Luzon({
     });
 
     TIME_LINE.add(zizagTimelines, 0);
-    TIME_LINE.add(circleTimelines, 0.1);
-    TIME_LINE.add(sineWavesTimelines, 0.6);
+    TIME_LINE.add(circleTimelines, 0.2);
+    TIME_LINE.add(sineWavesTimelines, 0.7);
     TIME_LINE.add(heartLinesTimelines, 0.6);
   }, [
     prevRepeat,
@@ -309,8 +296,6 @@ export default function Luzon({
     setPrevRepeatDelay(repeatDelay);
     setPrevRepeat(repeat);
   }, [size, delay, repeatDelay, repeat]);
-
-  // const circleSize = useMemo(() => (CIRCLE_SIZE * 100) / prevSize, [prevSize]);
 
   return (
     <div
@@ -363,6 +348,7 @@ export default function Luzon({
           shapeRef={ref}
           color="#fed766"
           width={`${SINE_WAVE_SIZE}%`}
+          height="4%"
           style={{
             position: "absolute",
             top: "50%",
@@ -372,7 +358,7 @@ export default function Luzon({
               (2 * 10) / 2 +
               (i % 2) * 10}deg)`
           }}
-          dasharray={`0 ${sineWaveLength}`}
+          dasharray={`0 ${sineWaveTotalLength}`}
         />
       ))}
       {circleRefs.current.map((ref, i) => (
