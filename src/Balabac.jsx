@@ -3,16 +3,16 @@ import React, {
   useEffect,
   useCallback,
   createRef,
-  useRef
+  useRef,
+  useMemo
 } from "react";
-import gsap, { Power4, Linear } from "gsap";
+import gsap, { Power4 } from "gsap";
 import Circle from "./Icons/Circle";
 
 const RADIUS = 60;
 const LINE_RADIUS = 35;
 const CIRCLES_RADIUS = 50;
 const STROKE_WIDTH = 1;
-const DURATIONS = [0.6, 1];
 
 let TIME_LINE = null;
 
@@ -22,7 +22,6 @@ export default function Balabac({
   repeatDelay,
   repeat,
   style,
-  color = "white",
   onComplete,
   onStart,
   onRepeat
@@ -39,74 +38,68 @@ export default function Balabac({
   const center = size / 2;
   const strokeWidth = Math.ceil((size * STROKE_WIDTH) / 100);
 
-  const explode = useCallback(() => {
-    const circleTimelines = [];
-    const lineTimelines = [];
-    const radius = (prevSize * LINE_RADIUS) / 100;
-    const angle = Math.PI / 2;
+  const animateCircles = useCallback(() => {
+    const timelines = [];
+    const totalLength = 157;
+    const offset = 55;
+    const length = 40;
 
     circlesRefs.current.forEach(ref => {
       const timeline = gsap.timeline();
 
       timeline.set(ref.current, {
-        attr: { "stroke-dashoffset": 55, "stroke-dasharray": "0 157" }
+        attr: {
+          "stroke-dashoffset": offset,
+          "stroke-dasharray": `0, ${totalLength}`
+        }
       });
-      timeline.to(ref.current, 1.7, {
+
+      timeline.to(ref.current, 1, {
         keyframes: [
-          { attr: { "stroke-dasharray": "0 157", "stroke-dashoffset": 55 } },
-          { attr: { "stroke-dasharray": "40 117", "stroke-dashoffset": -24 } },
-          { attr: { "stroke-dasharray": "0 157", "stroke-dashoffset": -103 } }
-        ],
-        ease: Linear.easeNone
+          {
+            attr: {
+              "stroke-dasharray": `${length} ${totalLength - length}`,
+              "stroke-dashoffset": -20
+            },
+            ease: Power4.easeIn
+          },
+          {
+            attr: {
+              "stroke-dasharray": `0 ${totalLength}`,
+              "stroke-dashoffset": totalLength * -1 + offset
+            },
+            ease: Power4.easeOut
+          }
+        ]
       });
 
-      circleTimelines.push(timeline);
+      timelines.push(timeline);
     });
 
-    linesRefs.current.forEach((ref, i) => {
-      const x = center + radius * Math.cos(Math.PI / 4 + i * angle);
-      const y = center + radius * Math.sin(Math.PI / 4 + i * angle);
-      const start = { x2: x, y2: y };
-      const end = { x1: x, y1: y };
+    return timelines;
+  }, []);
 
-      const timeline = gsap.timeline();
-
-      timeline
-        .fromTo(
-          ref.current,
-          0.8,
-          { attr: { x2: center, y2: center } },
-          { attr: start, ease: Power4.easeIn }
-        )
-        .fromTo(
-          ref.current,
-          0.8,
-          { attr: { x1: center, y1: center } },
-          { attr: end, ease: Power4.easeOut },
-          ">"
-        );
-
-      lineTimelines.push(timeline);
-    });
-
+  const animateCircle = useCallback(() => {
     const timeline = gsap.timeline();
 
     timeline.fromTo(
       circleRef.current,
-      0.7,
+      0.5,
       {
         attr: {
           "stroke-dashoffset": -18,
           "stroke-dasharray": "0 39.25 0 39.25"
-        }
+        },
+        ease: Power4.easeOut
       },
       {
-        attr: { "stroke-dashoffset": 0, "stroke-dasharray": "39.25 0 39.25 0" }
+        attr: { "stroke-dashoffset": 0, "stroke-dasharray": "39.25 0 39.25 0" },
+        ease: Power4.easeIn
       }
     );
     timeline.fromTo(
       circleRef.current,
-      1.3,
+      1,
       {
         attr: {
           "stroke-dashoffset": 18,
@@ -120,6 +113,48 @@ export default function Balabac({
       }
     );
 
+    return timeline;
+  }, []);
+
+  const animateLines = useCallback(() => {
+    const timelines = [];
+    const radius = (prevSize * LINE_RADIUS) / 100;
+    const angle = Math.PI / 2;
+
+    linesRefs.current.forEach((ref, i) => {
+      const x = center + radius * Math.cos(Math.PI / 4 + i * angle);
+      const y = center + radius * Math.sin(Math.PI / 4 + i * angle);
+      const start = { x2: x, y2: y };
+      const end = { x1: x, y1: y };
+
+      const timeline = gsap.timeline();
+
+      timeline
+        .fromTo(
+          ref.current,
+          0.5,
+          { attr: { x2: center, y2: center } },
+          { attr: start, ease: Power4.easeIn }
+        )
+        .fromTo(
+          ref.current,
+          0.5,
+          { attr: { x1: center, y1: center } },
+          { attr: end, ease: Power4.easeOut },
+          ">"
+        );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, [center, prevSize]);
+
+  const explode = useCallback(() => {
+    const circlesTimelines = animateCircles();
+    const linesTimelines = animateLines();
+    const circleTimeline = animateCircle();
+
     TIME_LINE = gsap.timeline({
       repeat: prevRepeat,
       delay: prevDelay,
@@ -129,9 +164,9 @@ export default function Balabac({
       onRepeat
     });
 
-    TIME_LINE.add(circleTimelines, 0);
-    TIME_LINE.add(lineTimelines, 0);
-    TIME_LINE.add(timeline, "-=1");
+    TIME_LINE.add(circlesTimelines, 0);
+    TIME_LINE.add(linesTimelines, 0);
+    TIME_LINE.add(circleTimeline, "-=1");
   }, [
     prevRepeat,
     prevDelay,
@@ -139,8 +174,9 @@ export default function Balabac({
     onComplete,
     onStart,
     onRepeat,
-    center,
-    prevSize
+    animateCircles,
+    animateLines,
+    animateCircle
   ]);
 
   useEffect(() => {
@@ -155,7 +191,9 @@ export default function Balabac({
     setPrevRepeat(repeat);
   }, [size, delay, repeatDelay, repeat]);
 
-  const circlesRadius = (CIRCLES_RADIUS * prevSize) / 100;
+  const circlesRadius = useMemo(() => (CIRCLES_RADIUS * prevSize) / 100, [
+    prevSize
+  ]);
 
   return (
     <div style={{ width: size, height: size, ...style }}>
