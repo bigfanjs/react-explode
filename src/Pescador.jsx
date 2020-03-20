@@ -5,7 +5,7 @@ import React, {
   createRef,
   useRef
 } from "react";
-import gsap, { Linear, Power4 } from "gsap";
+import gsap, { Power4 } from "gsap";
 import Square from "./Icons/Square";
 import Triangle from "./Icons/Triangle";
 
@@ -16,8 +16,6 @@ const RADIUS = 50;
 const INIT_RADIUS = 10;
 const SQUARE_SIZE = 20;
 const TRIANGLE_SIZE = 15;
-const START_DASHARRAY = [25, 75];
-const END_DASHARRAY = [0, 100];
 
 let TIMELINE = null;
 
@@ -59,30 +57,31 @@ export default function Pescador({
     [square]
   );
 
-  const explode = useCallback(() => {
+  const animateSquare = useCallback(() => {
     const timeline = gsap.timeline();
-    const startDasharray = dasharray(START_DASHARRAY);
-    const endDashArray = dasharray(END_DASHARRAY);
 
-    const triangleTimelines = [];
-    const polygonTimelines = [];
-    const lineTimelines = [];
+    const startDasharray = dasharray([25, 75]);
+    const endDashArray = dasharray([0, 100]);
 
-    // animate square:
-    timeline.fromTo(
-      squareRef.current,
-      1,
-      { strokeDashoffset: 0 },
-      { strokeDashoffset: square * 4, ease: Linear.easeNone }
-    );
-    timeline.fromTo(
-      squareRef.current,
-      0.3,
-      { strokeDasharray: startDasharray },
-      { strokeDasharray: endDashArray, ease: Linear.easeNone }
-    );
+    timeline.set(squareRef.current, {
+      strokeDashoffset: 0,
+      strokeDasharray: startDasharray
+    });
 
-    // animate triangles
+    timeline.to(squareRef.current, {
+      keyframes: [
+        { strokeDashoffset: square * 4, duration: 1.2 },
+        { strokeDasharray: endDashArray, duration: 0.2 }
+      ],
+      ease: Power4.easeOut
+    });
+
+    return timeline;
+  }, [dasharray, square]);
+
+  const animateTriangles = useCallback(() => {
+    const timelines = [];
+
     triangleRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline({ ease });
       const x = Math.cos(-prefixAngle + i * angle);
@@ -96,35 +95,26 @@ export default function Pescador({
         ref.current,
         1,
         { scale: 0 },
-        { scale: 1, transformOrigin: "center" }
+        { scale: 1, transformOrigin: "center", ease: Power4.easeInOut }
       );
       timeline.fromTo(
         ref.current,
         1,
         { x: -size, y: -size },
-        { x: radius * x - size, y: radius * y - size },
+        { x: radius * x - size, y: radius * y - size, ease: Power4.easeInOut },
         "-=1"
       );
-      timeline.to(ref.current, 1, { scale: 0 }, "-=0.7");
+      timeline.to(ref.current, 1, { scale: 0, ease: Power4.easeOut }, "-=0.4");
 
-      triangleTimelines.push(timeline);
+      timelines.push(timeline);
     });
 
-    // animate polygon points
-    polygonRefs.current.forEach(ref => {
-      const timeline = gsap.timeline();
+    return timelines;
+  }, [angle, prefixAngle, prevSize, radius]);
 
-      timeline.fromTo(
-        ref.current,
-        1,
-        { attr: { points: POINTS } },
-        { attr: { points: "0,0 60,30 0,60 30,30" }, ease }
-      );
+  const animateLines = useCallback(() => {
+    const timelines = [];
 
-      polygonTimelines.push(timeline);
-    });
-
-    // animate lines
     lineRefs.current.forEach((ref, i) => {
       const timeline = gsap.timeline();
       const cos = Math.cos(prefixAngle + i * angle);
@@ -164,8 +154,36 @@ export default function Pescador({
           `-=${DURATIONS[0]}`
         );
 
-      lineTimelines.push(timeline);
+      timelines.push(timeline);
     });
+
+    return timelines;
+  }, [angle, center, initRadius, prefixAngle, radius]);
+
+  const animatePolygonShape = useCallback(() => {
+    const timelines = [];
+
+    polygonRefs.current.forEach(ref => {
+      const timeline = gsap.timeline();
+
+      timeline.fromTo(
+        ref.current,
+        1,
+        { attr: { points: POINTS } },
+        { attr: { points: "0,0 60,30 0,60 30,30" }, ease }
+      );
+
+      timelines.push(timeline);
+    });
+
+    return timelines;
+  }, []);
+
+  const explode = useCallback(() => {
+    const squareTimeline = animateSquare();
+    const triangleTimelines = animateTriangles();
+    const polygonTimelines = animatePolygonShape();
+    const lineTimelines = animateLines();
 
     TIMELINE = gsap.timeline({
       repeat: prevRepeat,
@@ -176,8 +194,8 @@ export default function Pescador({
       onRepeat
     });
 
-    TIMELINE.add(timeline, 0);
-    TIMELINE.add(triangleTimelines, ">");
+    TIMELINE.add(squareTimeline, 0);
+    TIMELINE.add(triangleTimelines, "-=0.8");
     TIMELINE.add(polygonTimelines, "-=1");
     TIMELINE.add(lineTimelines, "<");
   }, [
@@ -187,14 +205,10 @@ export default function Pescador({
     onStart,
     onComplete,
     onRepeat,
-    center,
-    angle,
-    prefixAngle,
-    initRadius,
-    radius,
-    dasharray,
-    prevSize,
-    square
+    animateSquare,
+    animateTriangles,
+    animatePolygonShape,
+    animateLines
   ]);
 
   useEffect(() => {
@@ -218,7 +232,7 @@ export default function Pescador({
         strokeWidth={strokeWidth}
         strokeDasharray="30 90"
         strokeDashoffset={0}
-        color="#CC0000"
+        color="#fed766"
         style={{
           position: "absolute",
           top: "50%",
@@ -240,10 +254,11 @@ export default function Pescador({
               left: "50%",
               width: `${TRIANGLE_SIZE}%`,
               height: `${TRIANGLE_SIZE}%`,
-              transform: `translate(-50%, -50%) rotate(${((angle * 180) /
-                Math.PI) *
-                idx -
-                30}deg) scale(0)`
+              transform: `
+                translate(-50%, -50%)
+                rotate(${((angle * 180) / Math.PI) * idx - 30}deg)
+                scale(0)
+              `
             }}
           />
         ))}
