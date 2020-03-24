@@ -15,7 +15,8 @@ export default function Palawan({
   color = "white",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
@@ -135,7 +136,12 @@ export default function Palawan({
   });
 
   return (
-    <svg width={prevSize} height={prevSize} style={style}>
+    <svg
+      width={prevSize}
+      height={prevSize}
+      className={className}
+      style={{ ...style, position: "relative" }}
+    >
       {[...Array(5)].map((_, i) => {
         const { x, y } = positions[i];
 

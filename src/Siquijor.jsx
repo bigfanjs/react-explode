@@ -23,7 +23,8 @@ export default function Siquijor({
   color = "white",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
@@ -139,7 +140,12 @@ export default function Siquijor({
   }, [explode]);
 
   return (
-    <svg style={style} width={prevSize} height={prevSize}>
+    <svg
+      style={{ ...style, position: "relative" }}
+      width={prevSize}
+      height={prevSize}
+      className={className}
+    >
       <>
         {[...Array(2)].map((_, i) => {
           const width = Math.ceil((prevSize * WIDTHS[i]) / 100);

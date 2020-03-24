@@ -28,7 +28,8 @@ export default function Babuyan({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const starRef = useRef();
   const starPolygonRef = useRef();
@@ -172,7 +173,10 @@ export default function Babuyan({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: size, height: size, ...style }}>
+    <div
+      className={className}
+      style={{ width: size, height: size, position: "relative", ...style }}
+    >
       <Star
         strokeWidth={2}
         ref={starRef}

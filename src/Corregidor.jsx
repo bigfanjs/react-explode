@@ -25,7 +25,8 @@ export default function Corregidor({
   color = "#fff",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const circleRef = useRef();
   const linesRefs = useRef([...Array(COUNT)].map(() => createRef()));
@@ -145,7 +146,15 @@ export default function Corregidor({
   }, [explode]);
 
   return (
-    <div style={{ width: prevSize, height: prevSize, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       <svg width={prevSize} height={prevSize}>
         {linesRefs.current.map((ref, i) => (
           <line

@@ -23,7 +23,8 @@ export default function Boracay({
   color = "#fff",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const linesRefs = useRef([...Array(COUNT)].map(() => createRef()));
   const [prevSize, setPrevSize] = useState(size);
@@ -100,7 +101,12 @@ export default function Boracay({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <svg width={size} height={size} style={style}>
+    <svg
+      width={size}
+      height={size}
+      className={className}
+      style={{ ...style, position: "relative" }}
+    >
       <>
         {linesRefs.current.map((ref, i) => (
           <line

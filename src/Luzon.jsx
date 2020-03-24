@@ -31,7 +31,8 @@ export default function Luzon({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const circleRefs = useRef([...Array(2)].map(() => createRef()));
   const waveRefs = useRef([...Array(4)].map(() => createRef()));
@@ -299,9 +300,11 @@ export default function Luzon({
 
   return (
     <div
+      className={className}
       style={{
         width: prevSize,
         height: prevSize,
+        position: "relative",
         ...style
       }}
     >

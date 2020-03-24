@@ -29,7 +29,8 @@ export default function Pescador({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const squareRef = useRef();
   const triangleRefs = useRef([...Array(3)].map(() => createRef()));
@@ -224,7 +225,15 @@ export default function Pescador({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: prevSize, height: prevSize, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       <Square
         shapeRef={squareRef}
         width={`${SQUARE_SIZE}%`}

@@ -27,7 +27,8 @@ export default function Cebu({
   color = "white",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
@@ -136,7 +137,15 @@ export default function Cebu({
   ]);
 
   return (
-    <div style={{ width: prevSize, height: prevSize, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       {[...Array(4)].map((_, i) => {
         return (
           <Fragment key={i}>

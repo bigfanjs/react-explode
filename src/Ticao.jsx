@@ -141,7 +141,8 @@ export default function Ticao({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const linesRefs = useRef([...Array(LINES_LENGTH)].map(() => createRef()));
   const circleLinesRefs = useRef(
@@ -300,9 +301,11 @@ export default function Ticao({
 
   return (
     <div
+      className={className}
       style={{
         width: prevSize,
         height: prevSize,
+        position: "relative",
         ...style
       }}
     >

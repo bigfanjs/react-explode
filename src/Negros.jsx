@@ -34,7 +34,8 @@ export default function Negros({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const lineRef = useRef();
   const circlesRefs = useRef([...Array(1)].map(() => createRef()));
@@ -269,7 +270,15 @@ export default function Negros({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: size, height: size, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       {circlesRefs.current.map((ref, i) => (
         <Circle
           key={i}

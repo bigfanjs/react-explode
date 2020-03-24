@@ -18,7 +18,8 @@ export default function Malalison({
   color = "white",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const [prevSize, setPrevSize] = useState(200);
   const [prevDelay, setPrevDelay] = useState(0);
@@ -116,7 +117,12 @@ export default function Malalison({
   }, [explode]);
 
   return (
-    <svg width={prevSize} height={prevSize} style={style}>
+    <svg
+      width={prevSize}
+      height={prevSize}
+      style={{ ...style, position: "relative" }}
+      className={className}
+    >
       {[...Array(64)].map((_, i) => (
         <line
           key={i}

@@ -24,7 +24,8 @@ export default function Balabac({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const circleRef = useRef();
   const circlesRefs = useRef([...Array(4)].map(() => createRef()));
@@ -196,7 +197,10 @@ export default function Balabac({
   ]);
 
   return (
-    <div style={{ width: size, height: size, ...style }}>
+    <div
+      className={className}
+      style={{ width: size, height: size, position: "relative", ...style }}
+    >
       {Array.from(Array(4)).map((_, i) => {
         const x = Math.cos(Math.PI / 4 + i * (Math.PI / 2));
         const y = Math.sin(Math.PI / 4 + i * (Math.PI / 2));

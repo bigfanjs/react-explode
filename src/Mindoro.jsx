@@ -34,7 +34,8 @@ export default function Mindoro({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const hexagonRef = useRef();
   const seahouseRefs = useRef([...Array(4)].map(() => createRef()));
@@ -231,7 +232,10 @@ export default function Mindoro({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: size, height: size, ...style }}>
+    <div
+      className={className}
+      style={{ width: size, height: size, position: "relative", ...style }}
+    >
       {seahouseRefs.current.map((ref, i) => (
         <Seahouse
           key={i}

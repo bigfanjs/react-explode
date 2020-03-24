@@ -43,7 +43,8 @@ export default function Siargao({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const linesRefs = useRef([...Array(LINES_LENGTH)].map(() => createRef()));
   const circlesRefs = useRef(
@@ -159,7 +160,15 @@ export default function Siargao({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: prevSize, height: prevSize, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       {linesRefs.current.map((ref, i) => (
         <Wave2
           key={i}

@@ -18,7 +18,8 @@ export default function Panay({
   color = "white",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const [prevSize, setPrevSize] = useState(size);
   const [prevDelay, setPrevDelay] = useState(0);
@@ -78,7 +79,15 @@ export default function Panay({
   });
 
   return (
-    <div style={{ width: prevSize, height: prevSize, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       {Array.from(Array(COUNT)).map((_, i) => {
         return (
           <Wave

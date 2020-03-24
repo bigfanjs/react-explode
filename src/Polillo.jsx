@@ -27,7 +27,8 @@ export default function Polillo({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const zigzagRefs = useRef([...Array(9)].map(() => createRef()));
   const crossRefs = useRef([...Array(9)].map(() => createRef()));
@@ -202,7 +203,15 @@ export default function Polillo({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: prevSize, height: prevSize, ...style }}>
+    <div
+      className={className}
+      style={{
+        width: prevSize,
+        height: prevSize,
+        position: "relative",
+        ...style
+      }}
+    >
       {zigzagRefs.current.map((ref, i) => (
         <ZigZag
           key={i}

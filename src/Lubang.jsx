@@ -27,7 +27,8 @@ export default function Lubang({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const curveLiveRef = useRef();
   const circleRef = useRef();
@@ -283,7 +284,10 @@ export default function Lubang({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <div style={{ width: size, height: size, ...style }}>
+    <div
+      className={className}
+      style={{ width: size, height: size, position: "relative", ...style }}
+    >
       <CurveLine
         width={prevSize}
         height={prevSize}

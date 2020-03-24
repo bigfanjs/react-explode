@@ -20,7 +20,8 @@ export default function Guyam({
   color = "white",
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const circleRef = useRef();
 
@@ -83,7 +84,12 @@ export default function Guyam({
   }, [size, delay, repeatDelay, repeat]);
 
   return (
-    <svg width={prevSize} height={prevSize} style={style}>
+    <svg
+      width={prevSize}
+      height={prevSize}
+      className={className}
+      style={{ ...style, position: "relative" }}
+    >
       <circle
         cx={center}
         cy={center}

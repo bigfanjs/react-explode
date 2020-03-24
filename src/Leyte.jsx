@@ -67,7 +67,8 @@ export default function Leyte({
   style,
   onComplete,
   onStart,
-  onRepeat
+  onRepeat,
+  className
 }) {
   const circleRefs = useRef([...Array(7)].map(() => createRef()));
   const lineRefs = useRef([...Array(9)].map(() => createRef()));
@@ -299,7 +300,10 @@ export default function Leyte({
   ];
 
   return (
-    <div style={{ width: size, height: size, ...style }}>
+    <div
+      className={className}
+      style={{ width: size, height: size, position: "relative", ...style }}
+    >
       {Array.from(Array(CIRCLES_LENGTH)).map((_, i) => (
         <CircleIcon
           key={i}
