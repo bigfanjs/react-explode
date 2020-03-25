@@ -255,7 +255,7 @@ export default function Mindoro({
       {Array.from(Array(2)).map((_, i) =>
         Array.from(Array(4)).map((_, j) => (
           <SineWave
-            key={i}
+            key={j + 4 * i}
             width={`${SINE_WAVE_WIDTHS[j % 2]}%`}
             strokeWidth={0}
             shapeRef={sinewavesRefs.current[j + 4 * i]}
