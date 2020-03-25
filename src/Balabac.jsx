@@ -55,7 +55,7 @@ export default function Balabac({
         }
       });
 
-      timeline.to(ref.current, 1, {
+      timeline.to(ref.current, 1.5, {
         keyframes: [
           {
             attr: {
@@ -166,7 +166,7 @@ export default function Balabac({
     });
 
     TIME_LINE.add(circlesTimelines, 0);
-    TIME_LINE.add(linesTimelines, 0);
+    TIME_LINE.add(linesTimelines, "-=1");
     TIME_LINE.add(circleTimeline, "-=1");
   }, [
     prevRepeat,
