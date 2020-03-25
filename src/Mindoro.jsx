@@ -16,7 +16,7 @@ import useGSAPAnimateStroke from "./hooks/useGSAPAnimateStroke";
 
 let TIME_LINE;
 
-const SINE_WAVE_LENGTH = 30;
+const SINE_WAVE_LENGTH = 12.5;
 const HEXAGON_WIDTH = 30;
 const HEXAGON_HEIGHT = 32;
 const SINE_WAVE_WIDTHS = [37.5, 50];
@@ -50,11 +50,11 @@ export default function Mindoro({
   const [prevRepeat, setPrevRepeat] = useState(0);
 
   const hexagonStrokeWidth = (HEXAGON_STROKE_WIDTH * 100) / 400;
-  const SineWavelength = useMemo(() => (SINE_WAVE_LENGTH * prevSize) / 100, [
+  const sineWavelength = useMemo(() => (SINE_WAVE_LENGTH * prevSize) / 100, [
     prevSize
   ]);
   const animateSineWaveStroke = useGSAPAnimateStroke({
-    length: SineWavelength,
+    length: sineWavelength,
     totalLength: sineWaveTotalLength,
     speed: 1.1
   });
@@ -257,6 +257,7 @@ export default function Mindoro({
           <SineWave
             key={j + 4 * i}
             width={`${SINE_WAVE_WIDTHS[j % 2]}%`}
+            height="4%"
             strokeWidth={0}
             shapeRef={sinewavesRefs.current[j + 4 * i]}
             dasharray={`0 ${sineWaveTotalLength}`}
