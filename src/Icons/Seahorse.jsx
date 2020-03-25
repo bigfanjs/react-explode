@@ -1,6 +1,6 @@
 import React from "react";
 
-export const length = 87;
+export const length = 87.5;
 
 export default function Seahouse({
   width = 51,
