@@ -1,14 +1,19 @@
 {
   "name": "react-explode",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "explosion motion components built with react and gsap",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx babel src --out-dir .",
-    "watch": "npx babel src --out-dir . --watch",
-    "clean": "rm -rf node_modules/ package-lock.json yarn-error.log yarn.lock *.js"
+    "clean-dist": "rm -rf dist",
+    "build": "npm run clean-dist && npx babel src --out-dir dist && npm run copypackage",
+    "watch": "npm run clean-dist && npx babel src --out-dir dist --watch",
+    "clean": "rm -rf node_modules/ package-lock.json yarn-error.log yarn.lock dist",
+    "copypackage": "cp -rf package.json dist",
+    "dist": "cd dist && npm publish"
   },
+  "files": [
+    "dist"
+  ],
   "repository": "https://github.com/bigfanjs/react-explode",
   "keywords": [
     "react",
