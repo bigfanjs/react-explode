@@ -12,7 +12,9 @@
     "dist": "cd dist && npm publish"
   },
   "files": [
-    "dist"
+    "*.js",
+    "hooks",
+    "icons"
   ],
   "repository": "https://github.com/bigfanjs/react-explode",
   "keywords": [
