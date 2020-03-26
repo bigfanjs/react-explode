@@ -102,10 +102,7 @@ export default function Balabac({
       circleRef.current,
       1,
       {
-        attr: {
-          "stroke-dashoffset": 18,
-          "stroke-dasharray": "39.25 0 39.25 0"
-        },
+        attr: { "stroke-dashoffset": 18 },
         ease: Power4.easeIn
       },
       {
@@ -248,7 +245,7 @@ export default function Balabac({
         strokeWidth={1}
         color="#1da372"
         shapeRef={circleRef}
-        strokeDasharray="0 157"
+        strokeDasharray="0 39.25 0 39.25"
         style={{
           position: "absolute",
           left: "50%",
