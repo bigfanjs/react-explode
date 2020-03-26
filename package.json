@@ -1,6 +1,6 @@
 {
   "name": "react-explode",
-  "version": "1.0.2",
+  "version": "2.0.1",
   "description": "explosion motion components built with react and gsap",
   "main": "index.js",
   "scripts": {
